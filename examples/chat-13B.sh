@@ -4,7 +4,7 @@ set -e
 
 cd "$(dirname "$0")/.." || exit
 
-MODEL="${MODEL:-./models/13B/ggml-model-q4_0.bin}"
+MODEL="/Users/e168693/.ollama/models/blobs/sha256-4ad960d180b16f56024f5b704697e5dd5b0837167c2e515ef0569abfc599743c"
 PROMPT_TEMPLATE=${PROMPT_TEMPLATE:-./prompts/chat.txt}
 USER_NAME="${USER_NAME:-USER}"
 AI_NAME="${AI_NAME:-ChatLLaMa}"
@@ -30,7 +30,7 @@ sed -e "s/\[\[USER_NAME\]\]/$USER_NAME/g" \
      $PROMPT_TEMPLATE > $PROMPT_FILE
 
 # shellcheck disable=SC2086 # Intended splitting of GEN_OPTIONS
-./llama-cli $GEN_OPTIONS \
+llama-cli $GEN_OPTIONS \
   --model "$MODEL" \
   --threads "$N_THREAD" \
   --n_predict "$N_PREDICTS" \

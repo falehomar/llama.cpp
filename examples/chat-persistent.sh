@@ -4,12 +4,14 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.." || exit
 
+PROMPT_CACHE_FILE="/Users/e168693/TeamCompose/submodules/llama.cpp/build/PROMPT_CACHE_FILE.md"
+CHAT_SAVE_DIR="/Users/e168693/TeamCompose/submodules/llama.cpp/build"
 if [[ -z "${PROMPT_CACHE_FILE+x}" || -z "${CHAT_SAVE_DIR+x}" ]]; then
     echo >&2 "error: PROMPT_CACHE_FILE and CHAT_SAVE_DIR must be provided"
     exit 1
 fi
 
-MODEL="${MODEL:-./models/llama-13b/ggml-model-q4_0.gguf}"
+MODEL="/Users/e168693/.ollama/models/blobs/sha256-4ad960d180b16f56024f5b704697e5dd5b0837167c2e515ef0569abfc599743c"
 PROMPT_TEMPLATE="${PROMPT_TEMPLATE:-./prompts/chat.txt}"
 USER_NAME="${USER_NAME:-User}"
 AI_NAME="${AI_NAME:-ChatLLaMa}"
@@ -63,7 +65,7 @@ fi
 if [[ ! -e "$PROMPT_CACHE_FILE" ]]; then
     echo 'Prompt cache does not exist, building...'
     # Default batch_size to 64 here for better user feedback during initial prompt processing
-    ./llama-cli 2>>"$LOG" \
+    llama-cli 2>>"$LOG" \
         --batch_size 64 \
         "${OPTS[@]}" \
         --prompt-cache "$PROMPT_CACHE_FILE" \
@@ -110,7 +112,7 @@ while read -e line; do
 
     printf '%s: ' "$AI_NAME" >>"$CUR_PROMPT_FILE"
 
-    ./llama-cli 2>>"$LOG" "${OPTS[@]}" \
+    llama-cli 2>>"$LOG" "${OPTS[@]}" \
             --prompt-cache "$CUR_PROMPT_CACHE" \
             --prompt-cache-all \
             --file "$CUR_PROMPT_FILE" \
@@ -142,7 +144,7 @@ while read -e line; do
     fi
 
     # Update cache for next prompt in background, ideally during user input
-    ./llama-cli >>"$LOG_BG" 2>&1 "${OPTS[@]}" \
+    llama-cli >>"$LOG_BG" 2>&1 "${OPTS[@]}" \
           --prompt-cache "$NEXT_PROMPT_CACHE" \
           --file "$NEXT_PROMPT_FILE" \
           --n_predict 1 &
