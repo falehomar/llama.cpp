@@ -16,8 +16,8 @@ endif()
 include(${SWIG_USE_FILE})
 
 # Find Java
-find_package(JNI 17 REQUIRED)
-find_package(Java 17 REQUIRED Development)
+find_package(JNI 21 REQUIRED)
+find_package(Java 21 REQUIRED Development)
 include(UseJava)
 
 

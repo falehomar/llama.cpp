@@ -1,0 +1,5 @@
+rootProject.name = 'llama-java'
+
+include 'api'
+include 'impl-llamacpp'
+include 'impl-foreign'
