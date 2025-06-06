@@ -18,14 +18,7 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-# IntelliJ IDEA specific
-.idea/
-*.iws
-*.iml
-*.ipr
-out/
-!**/src/main/**/out/
-!**/src/test/**/out/
+
 
 # Eclipse specific
 .apt_generated
@@ -46,8 +39,6 @@ bin/
 /nbdist/
 /.nb-gradle/
 
-# VS Code specific
-.vscode/
 
 # Native library build artifacts
 *.so
