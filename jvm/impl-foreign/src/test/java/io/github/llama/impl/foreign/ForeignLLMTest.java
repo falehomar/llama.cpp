@@ -21,15 +21,12 @@ import java.nio.file.Paths;
  * This class demonstrates how to use the Java API.
  */
 public class ForeignLLMTest {
+    static String MODEL_PATH = "/Users/e168693/.ollama/models/blobs/sha256-4ad960d180b16f56024f5b704697e5dd5b0837167c2e515ef0569abfc599743c";
     public static void main(String[] args) {
-        // Check if a model path was provided
-        if (args.length < 1) {
-            System.err.println("Usage: ForeignLLMTest <model-path>");
-            System.exit(1);
-        }
+
 
         // Get the model path
-        Path modelPath = Paths.get(args[0]);
+        Path modelPath =Paths.get((args.length < 1)?MODEL_PATH: args[0]);
 
         try {
             // Create model parameters

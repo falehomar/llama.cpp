@@ -38,14 +38,7 @@ public class ForeignLLMFactory implements LLMFactory {
             return false;
         }
 
-        // Check if the file has a supported extension
-        String fileName = modelPath.getFileName().toString().toLowerCase();
-        for (String extension : SUPPORTED_EXTENSIONS) {
-            if (fileName.endsWith(extension)) {
-                return true;
-            }
-        }
-
-        return false;
+        // Extension check removed as per requirement
+        return true;
     }
 }
