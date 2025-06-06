@@ -1,0 +1,6 @@
+applicationType: default
+defaultPackage: cpp.llama
+testFramework: spock
+sourceLanguage: groovy
+buildTool: gradle
+features: [app-name, gradle, groovy, groovy-application, http-client-test, logback, micronaut-aot, micronaut-build, micronaut-http-validation, netty-server, properties, readme, rxjava3-http-client, serialization-jackson, shade, spock, static-resources]

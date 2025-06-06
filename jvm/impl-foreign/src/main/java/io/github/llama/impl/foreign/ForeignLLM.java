@@ -52,9 +52,30 @@ public class ForeignLLM implements LLM {
      * @return Memory segment containing the model handle
      */
     private MemorySegment loadModel(Path modelPath, ModelParams params) {
-        // TODO: Implement model loading using Java Foreign API
-        // This is a placeholder implementation
-        return MemorySegment.NULL;
+        // Get default model parameters
+        MemorySegment modelParams = NativeLibrary.llamaModelDefaultParams();
+
+        // Set parameters based on the ModelParams object
+        try (Arena arena = Arena.ofConfined()) {
+            // Set use_mmap
+            boolean useMmap = params.isUseMemoryMapping();
+            modelParams.set(ValueLayout.JAVA_BOOLEAN, 16, useMmap); // Offset 16 for use_mmap
+
+            // Set use_mlock
+            boolean useMlock = params.isUseMemoryLocking();
+            modelParams.set(ValueLayout.JAVA_BOOLEAN, 17, useMlock); // Offset 17 for use_mlock
+
+            // Set n_gpu_layers
+            int gpuLayerCount = params.getGpuLayerCount();
+            modelParams.set(ValueLayout.JAVA_INT, 0, gpuLayerCount); // Offset 0 for n_gpu_layers
+
+            // Set vocab_only
+            boolean vocabOnly = params.isVocabOnly();
+            modelParams.set(ValueLayout.JAVA_BOOLEAN, 18, vocabOnly); // Offset 18 for vocab_only
+
+            // Load the model
+            return NativeLibrary.llamaModelLoadFromFile(modelPath.toString(), modelParams);
+        }
     }
 
     @Override
@@ -100,7 +121,7 @@ public class ForeignLLM implements LLM {
      * @param modelHandle Memory segment containing the model handle
      */
     private void freeModel(MemorySegment modelHandle) {
-        // TODO: Implement model freeing using Java Foreign API
+        NativeLibrary.llamaModelFree(modelHandle);
     }
 
     /**

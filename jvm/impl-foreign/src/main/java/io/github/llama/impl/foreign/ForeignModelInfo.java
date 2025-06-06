@@ -28,32 +28,27 @@ public class ForeignModelInfo implements ModelInfo {
 
     @Override
     public long getParameterCount() {
-        // TODO: Implement using Java Foreign API to call llama_model_n_params
-        return 0;
+        return NativeLibrary.llamaModelNParams(modelHandle);
     }
 
     @Override
     public int getContextSize() {
-        // TODO: Implement using Java Foreign API to call llama_model_n_ctx_train
-        return 0;
+        return NativeLibrary.llamaModelNCtxTrain(modelHandle);
     }
 
     @Override
     public int getEmbeddingSize() {
-        // TODO: Implement using Java Foreign API to call llama_model_n_embd
-        return 0;
+        return NativeLibrary.llamaModelNEmbd(modelHandle);
     }
 
     @Override
     public int getLayerCount() {
-        // TODO: Implement using Java Foreign API to call llama_model_n_layer
-        return 0;
+        return NativeLibrary.llamaModelNLayer(modelHandle);
     }
 
     @Override
     public int getHeadCount() {
-        // TODO: Implement using Java Foreign API to call llama_model_n_head
-        return 0;
+        return NativeLibrary.llamaModelNHead(modelHandle);
     }
 
     @Override
@@ -68,8 +63,7 @@ public class ForeignModelInfo implements ModelInfo {
 
     @Override
     public String getDescription() {
-        // TODO: Implement using Java Foreign API to call llama_model_desc
-        return "Foreign LLM Model";
+        return NativeLibrary.llamaModelDesc(modelHandle);
     }
 
     /**
