@@ -1,1 +1,1 @@
-io.github.llama.impl.foreign.ForeignLLMFactory
+io.github.llama.impl.foreign.JextractForeignLLMFactory

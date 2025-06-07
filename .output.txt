@@ -1,0 +1,527 @@
+Initialized native services in: /Users/e168693/.gradle/native
+Initialized jansi services in: /Users/e168693/.gradle/native
+Found daemon DaemonInfo{pid=80086, address=[057c6bbe-3eda-4b4d-900f-7ed066ec9341 port:64144, addresses:[/127.0.0.1]], state=Idle, lastBusy=1749258708701, context=DefaultDaemonContext[uid=1f4e82c2-047f-48c5-b17f-6ecbe8130375,javaHome=/Users/e168693/.sdkman/candidates/java/21.0.5-graal,javaVersion=21,javaVendor=Oracle Corporation,daemonRegistryDir=/Users/e168693/.gradle/daemon,pid=80086,idleTimeout=10800000,priority=NORMAL,applyInstrumentationAgent=true,nativeServicesMode=ENABLED,daemonOpts=-XX:MaxMetaspaceSize=384m,-XX:+HeapDumpOnOutOfMemoryError,-Xms256m,-Xmx512m,-Dfile.encoding=UTF-8,-Duser.country=CA,-Duser.language=en,-Duser.variant]} however its context does not match the desired criteria.
+JVM is incompatible.
+Wanted: DaemonRequestContext{jvmCriteria=/Users/e168693/.sdkman/candidates/java/24.ea.29-graal (no JDK specified, using current Java home), daemonOpts=[-XX:MaxMetaspaceSize=384m, -XX:+HeapDumpOnOutOfMemoryError, -Xms256m, -Xmx512m, -Dfile.encoding=UTF-8, -Duser.country=CA, -Duser.language=en, -Duser.variant], applyInstrumentationAgent=true, nativeServicesMode=ENABLED, priority=NORMAL}
+Actual: DefaultDaemonContext[uid=1f4e82c2-047f-48c5-b17f-6ecbe8130375,javaHome=/Users/e168693/.sdkman/candidates/java/21.0.5-graal,javaVersion=21,javaVendor=Oracle Corporation,daemonRegistryDir=/Users/e168693/.gradle/daemon,pid=80086,idleTimeout=10800000,priority=NORMAL,applyInstrumentationAgent=true,nativeServicesMode=ENABLED,daemonOpts=-XX:MaxMetaspaceSize=384m,-XX:+HeapDumpOnOutOfMemoryError,-Xms256m,-Xmx512m,-Dfile.encoding=UTF-8,-Duser.country=CA,-Duser.language=en,-Duser.variant]
+  Looking for a different daemon...
+The client will now receive all logging from the daemon (pid: 57558). The daemon log file: /Users/e168693/.gradle/daemon/8.14/daemon-57558.out.log
+Starting 32nd build in daemon [uptime: 1 hrs 45 mins 50.434 secs, performance: 100%, GC rate: 0.00/s, heap usage: 2% of 512 MiB, non-heap usage: 33% of 384 MiB]
+Using 16 worker leases.
+Now considering [/Users/e168693/TeamCompose/submodules/llama.cpp/jvm] as hierarchies to watch
+Now considering [/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/buildSrc, /Users/e168693/TeamCompose/submodules/llama.cpp/jvm] as hierarchies to watch
+Watching the file system is configured to be enabled if available
+Invalidating hierarchy because watch probe hasn't been triggered /Users/e168693/TeamCompose/submodules/llama.cpp/jvm/buildSrc
+File system watching is active
+Starting Build
+Settings evaluated using settings file '/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/settings.gradle'.
+Projects loaded. Root project using build file '/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/build.gradle'.
+Included projects: [root project 'llama-java', project ':api', project ':impl-foreign', project ':impl-jni']
+> Configure project :buildSrc
+Evaluating project ':buildSrc' using build file '/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/buildSrc/build.gradle'.
+Caching disabled for Groovy DSL script compilation (cp_proj) because:
+  Build cache is disabled
+  Not worth caching.
+Compiling build file '/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/buildSrc/build.gradle' using SubsetScriptTransformer.
+Resolved plugin [id: 'java-gradle-plugin']
+Caching disabled for Groovy DSL script compilation (proj) because:
+  Build cache is disabled
+  Not worth caching.
+Compiling build file '/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/buildSrc/build.gradle' using BuildScriptTransformer.
+Resolve mutations for :buildSrc:compileJava (Thread[#1546,Execution worker,5,main]) started.
+:buildSrc:compileJava (Thread[#1554,Execution worker Thread 9,5,main]) started.
+> Task :buildSrc:compileJava
+Generating /Users/e168693/.gradle/caches/8.14/generated-gradle-jars/gradle-api-8.14.jar
+Caching disabled for task ':buildSrc:compileJava' because:
+  Build cache is disabled
+Task ':buildSrc:compileJava' is not up-to-date because:
+  No history is available.
+The input changes require a full rebuild for incremental task ':buildSrc:compileJava'.
+Compilation mode: in-process compilation
+Full recompilation is required because no incremental change information is available. This is usually caused by clean builds or changing compiler arguments.
+Compiling with toolchain '/Users/e168693/.sdkman/candidates/java/24.ea.29-graal'.
+Compiling with JDK Java compiler API.
+Note: /Users/e168693/TeamCompose/submodules/llama.cpp/jvm/buildSrc/src/main/java/io/github/llama/gradle/JextractTask.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Class dependency analysis for incremental compilation took 0.005 secs.
+Created classpath snapshot for incremental compilation in 3.307 secs.
+Resolve mutations for :buildSrc:compileGroovy (Thread[#1554,Execution worker Thread 9,5,main]) started.
+:buildSrc:compileGroovy (Thread[#1554,Execution worker Thread 9,5,main]) started.
+> Task :buildSrc:compileGroovy NO-SOURCE
+Skipping task ':buildSrc:compileGroovy' as it has no source files and no previous output files.
+Resolve mutations for :buildSrc:pluginDescriptors (Thread[#1554,Execution worker Thread 9,5,main]) started.
+:buildSrc:pluginDescriptors (Thread[#1554,Execution worker Thread 9,5,main]) started.
+> Task :buildSrc:pluginDescriptors
+Caching disabled for task ':buildSrc:pluginDescriptors' because:
+  Build cache is disabled
+  Not worth caching
+Task ':buildSrc:pluginDescriptors' is not up-to-date because:
+  No history is available.
+Resolve mutations for :buildSrc:processResources (Thread[#1554,Execution worker Thread 9,5,main]) started.
+:buildSrc:processResources (Thread[#1554,Execution worker Thread 9,5,main]) started.
+> Task :buildSrc:processResources
+Caching disabled for task ':buildSrc:processResources' because:
+  Build cache is disabled
+  Not worth caching
+Task ':buildSrc:processResources' is not up-to-date because:
+  No history is available.
+file or directory '/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/buildSrc/src/main/resources', not found
+Resolve mutations for :buildSrc:classes (Thread[#1554,Execution worker Thread 9,5,main]) started.
+:buildSrc:classes (Thread[#1554,Execution worker Thread 9,5,main]) started.
+> Task :buildSrc:classes
+Skipping task ':buildSrc:classes' as it has no actions.
+Resolve mutations for :buildSrc:jar (Thread[#1554,Execution worker Thread 9,5,main]) started.
+:buildSrc:jar (Thread[#1554,Execution worker Thread 9,5,main]) started.
+> Task :buildSrc:jar
+Caching disabled for task ':buildSrc:jar' because:
+  Build cache is disabled
+  Not worth caching
+Task ':buildSrc:jar' is not up-to-date because:
+  No history is available.
+file or directory '/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/buildSrc/build/classes/groovy/main', not found
+Caching disabled for ProjectDependencyInstrumentingArtifactTransform: /Users/e168693/TeamCompose/submodules/llama.cpp/jvm/buildSrc/build/libs/buildSrc.jar because:
+  Build cache is disabled
+  Caching not enabled.
+> Configure project :
+Evaluating root project 'llama-java' using build file '/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/build.gradle'.
+Caching disabled for Groovy DSL script compilation (cp_proj) because:
+  Build cache is disabled
+  Not worth caching.
+Compiling build file '/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/build.gradle' using SubsetScriptTransformer.
+Resolved plugin [id: 'java-library']
+Resolved plugin [id: 'maven-publish']
+Resolved plugin [id: 'wrapper']
+Caching disabled for Groovy DSL script compilation (proj) because:
+  Build cache is disabled
+  Not worth caching.
+Compiling build file '/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/build.gradle' using BuildScriptTransformer.
+> Configure project :api
+Evaluating project ':api' using build file '/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/api/build.gradle'.
+Caching disabled for Groovy DSL script compilation (cp_proj) because:
+  Build cache is disabled
+  Not worth caching.
+Compiling build file '/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/api/build.gradle' using SubsetScriptTransformer.
+Caching disabled for Groovy DSL script compilation (proj) because:
+  Build cache is disabled
+  Not worth caching.
+Compiling build file '/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/api/build.gradle' using BuildScriptTransformer.
+> Configure project :impl-foreign
+Evaluating project ':impl-foreign' using build file '/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/build.gradle'.
+Caching disabled for Groovy DSL script compilation (cp_proj) because:
+  Build cache is disabled
+  Not worth caching.
+Compiling build file '/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/build.gradle' using SubsetScriptTransformer.
+Resolved plugin [id: 'io.github.llama.jextract']
+Caching disabled for Groovy DSL script compilation (proj) because:
+  Build cache is disabled
+  Not worth caching.
+Compiling build file '/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/build.gradle' using BuildScriptTransformer.
+> Configure project :impl-jni
+Evaluating project ':impl-jni' using build file '/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-jni/build.gradle'.
+Caching disabled for Groovy DSL script compilation (cp_proj) because:
+  Build cache is disabled
+  Not worth caching.
+Compiling build file '/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-jni/build.gradle' using SubsetScriptTransformer.
+Caching disabled for Groovy DSL script compilation (proj) because:
+  Build cache is disabled
+  Not worth caching.
+Compiling build file '/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-jni/build.gradle' using BuildScriptTransformer.
+All projects evaluated.
+Task name matched 'build'
+Selected primary task 'build' from project :impl-foreign
+Tasks to be executed: [task ':api:compileJava', task ':impl-foreign:generateJextract', task ':impl-foreign:compileJava', task ':impl-foreign:buildNative', task ':impl-foreign:copyNative', task ':impl-foreign:processResources', task ':impl-foreign:classes', task ':impl-foreign:jar', task ':impl-foreign:assemble', task ':api:processResources', task ':api:classes', task ':api:jar', task ':impl-foreign:compileTestJava', task ':impl-foreign:processTestResources', task ':impl-foreign:testClasses', task ':impl-foreign:test', task ':impl-foreign:check', task ':impl-foreign:build']
+Tasks that were excluded: []
+Resolve mutations for :api:compileJava (Thread[#1554,Execution worker Thread 9,5,main]) started.
+:api:compileJava (Thread[#1554,Execution worker Thread 9,5,main]) started.
+> Task :api:compileJava UP-TO-DATE
+Caching disabled for task ':api:compileJava' because:
+  Build cache is disabled
+Skipping task ':api:compileJava' as it is up-to-date.
+work action resolve main (project :api) (Thread[#1554,Execution worker Thread 9,5,main]) started.
+Resolve mutations for :impl-foreign:generateJextract (Thread[#1554,Execution worker Thread 9,5,main]) started.
+:impl-foreign:generateJextract (Thread[#1554,Execution worker Thread 9,5,main]) started.
+> Task :impl-foreign:generateJextract
+Caching disabled for task ':impl-foreign:generateJextract' because:
+  Build cache is disabled
+  Caching has not been enabled for the task
+Task ':impl-foreign:generateJextract' is not up-to-date because:
+  No history is available.
+Generating Java bindings using jextract
+Starting process 'command '/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/jextract/build/jextract/bin/jextract''. Working directory: /Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign Command: /Users/e168693/TeamCompose/submodules/llama.cpp/jvm/jextract/build/jextract/bin/jextract --output /Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/build/generated/jextract --target-package io.github.llama.impl.foreign.jextract --header-class-name Llama --include-function llama_.* --include-struct llama_.* --include-typedef llama_.* --include-constant llama_.* --include-var llama_.* --include-union llama_.* /Users/e168693/TeamCompose/submodules/llama.cpp/include/llama.h -I ../../include -I ../../ggml/include
+Successfully started process 'command '/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/jextract/build/jextract/bin/jextract''
+_stdio.h:98:16: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:143:32: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:143:40: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:144:35: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:145:32: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:145:46: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:149:18: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:167:13: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:168:13: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:169:13: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:232:21: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:233:18: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:234:16: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:235:18: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:236:18: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:237:17: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:238:19: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:238:40: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:239:29: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:239:80: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:239:6: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:243:24: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:243:60: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:243:6: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:245:19: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:245:44: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:246:22: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:247:23: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:247:42: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:248:20: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:248:107: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:249:26: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:249:51: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:250:11: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:249:6: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:251:18: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:251:43: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:252:17: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:253:19: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:253:35: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:254:18: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:255:27: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:255:114: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:256:16: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:262:28: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:262:6: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:264:25: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:265:21: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:267:22: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:268:24: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:269:25: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:269:44: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:270:19: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:271:23: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:272:19: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:272:38: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:273:19: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:273:38: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:280:19: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:280:67: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:282:24: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:282:49: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:283:6: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:289:30: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:289:6: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:291:23: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:292:20: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:292:45: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:293:25: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:300:20: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:300:68: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:318:30: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:318:6: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:320:18: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:331:18: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:335:24: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:335:38: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:335:6: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:350:18: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:351:21: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:351:35: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:352:23: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:361:49: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:387:22: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:388:24: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:389:24: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:390:25: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:392:30: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:397:16: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:398:21: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:405:37: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:405:56: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:405:6: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:428:18: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:429:20: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:435:20: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:435:86: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:436:19: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:436:53: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:437:24: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:438:21: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:438:87: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:439:25: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:439:56: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:453:29: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:454:30: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:455:23: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:455:49: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:455:77: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:455:124: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:456:22: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:456:48: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:456:76: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:456:106: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:457:21: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:457:86: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:457:6: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:458:27: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:458:50: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:458:66: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:458:6: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:469:21: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:471:20: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:471:32: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:471:56: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:472:33: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:472:6: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:473:39: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:473:49: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:473:6: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:474:35: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:474:49: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:474:14: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:475:18: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:476:22: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:476:30: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:477:22: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:478:21: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:478:33: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:478:57: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:484:26: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:485:29: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:485:37: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:486:29: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:486:43: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:487:32: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:488:29: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+_stdio.h:484:6: warning: pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+Resolve mutations for :impl-foreign:compileJava (Thread[#1554,Execution worker Thread 9,5,main]) started.
+:impl-foreign:compileJava (Thread[#1554,Execution worker Thread 9,5,main]) started.
+> Task :impl-foreign:compileJava FAILED
+Caching disabled for task ':impl-foreign:compileJava' because:
+  Build cache is disabled
+Task ':impl-foreign:compileJava' is not up-to-date because:
+  Task has failed previously.
+The input changes require a full rebuild for incremental task ':impl-foreign:compileJava'.
+Compilation mode: in-process compilation
+Full recompilation is required because no incremental change information is available. This is usually caused by clean builds or changing compiler arguments.
+Compiling with toolchain '/Users/e168693/.sdkman/candidates/java/24.ea.29-graal'.
+Compiling with JDK Java compiler API.
+/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/NativeLibrary.java:4: error: cannot find symbol
+import io.github.llama.impl.foreign.jextract.llama_h;
+                                            ^
+  symbol:   class llama_h
+  location: package io.github.llama.impl.foreign.jextract
+/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/JextractNativeLibrary.java:171: error: cannot find symbol
+            io.github.llama.impl.foreign.jextract.llama_h.llama_backend_init();
+                                                 ^
+  symbol:   class llama_h
+  location: package io.github.llama.impl.foreign.jextract
+/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/JextractNativeLibrary.java:183: error: cannot find symbol
+            io.github.llama.impl.foreign.jextract.llama_h.llama_backend_free();
+                                                 ^
+  symbol:   class llama_h
+  location: package io.github.llama.impl.foreign.jextract
+/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/JextractNativeLibrary.java:197: error: cannot find symbol
+            return io.github.llama.impl.foreign.jextract.llama_h.llama_model_default_params();
+                                                        ^
+  symbol:   class llama_h
+  location: package io.github.llama.impl.foreign.jextract
+/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/JextractNativeLibrary.java:216: error: cannot find symbol
+                return io.github.llama.impl.foreign.jextract.llama_h.llama_model_load_from_file(pathSegment, params);
+                                                            ^
+  symbol:   class llama_h
+  location: package io.github.llama.impl.foreign.jextract
+/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/JextractNativeLibrary.java:231: error: cannot find symbol
+            io.github.llama.impl.foreign.jextract.llama_h.llama_model_free(model);
+                                                 ^
+  symbol:   class llama_h
+  location: package io.github.llama.impl.foreign.jextract
+/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/JextractNativeLibrary.java:246: error: cannot find symbol
+            return io.github.llama.impl.foreign.jextract.llama_h.llama_model_n_params(model);
+                                                        ^
+  symbol:   class llama_h
+  location: package io.github.llama.impl.foreign.jextract
+/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/JextractNativeLibrary.java:261: error: cannot find symbol
+            return io.github.llama.impl.foreign.jextract.llama_h.llama_model_n_ctx_train(model);
+                                                        ^
+  symbol:   class llama_h
+  location: package io.github.llama.impl.foreign.jextract
+/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/JextractNativeLibrary.java:276: error: cannot find symbol
+            return io.github.llama.impl.foreign.jextract.llama_h.llama_model_n_embd(model);
+                                                        ^
+  symbol:   class llama_h
+  location: package io.github.llama.impl.foreign.jextract
+/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/JextractNativeLibrary.java:291: error: cannot find symbol
+            return io.github.llama.impl.foreign.jextract.llama_h.llama_model_n_layer(model);
+                                                        ^
+  symbol:   class llama_h
+  location: package io.github.llama.impl.foreign.jextract
+/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/JextractNativeLibrary.java:306: error: cannot find symbol
+            return io.github.llama.impl.foreign.jextract.llama_h.llama_model_n_head(model);
+                                                        ^
+  symbol:   class llama_h
+  location: package io.github.llama.impl.foreign.jextract
+/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/JextractNativeLibrary.java:324: error: cannot find symbol
+                int length = io.github.llama.impl.foreign.jextract.llama_h.llama_model_desc(model, buffer, 1024);
+                                                                  ^
+  symbol:   class llama_h
+  location: package io.github.llama.impl.foreign.jextract
+/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/JextractNativeLibrary.java:348: error: cannot find symbol
+            return io.github.llama.impl.foreign.jextract.llama_h.llama_model_get_vocab(model);
+                                                        ^
+  symbol:   class llama_h
+  location: package io.github.llama.impl.foreign.jextract
+/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/JextractNativeLibrary.java:362: error: cannot find symbol
+            return io.github.llama.impl.foreign.jextract.llama_h.llama_context_default_params();
+                                                        ^
+  symbol:   class llama_h
+  location: package io.github.llama.impl.foreign.jextract
+/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/JextractNativeLibrary.java:378: error: cannot find symbol
+            return io.github.llama.impl.foreign.jextract.llama_h.llama_init_from_model(model, params);
+                                                        ^
+  symbol:   class llama_h
+  location: package io.github.llama.impl.foreign.jextract
+/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/JextractNativeLibrary.java:392: error: cannot find symbol
+            io.github.llama.impl.foreign.jextract.llama_h.llama_free(context);
+                                                 ^
+  symbol:   class llama_h
+  location: package io.github.llama.impl.foreign.jextract
+/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/NativeLibrary.java:62: error: cannot find symbol
+            libraryLookup = SymbolLookup.loaderLookup();
+            ^
+  symbol:   variable libraryLookup
+  location: class NativeLibrary
+/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/NativeLibrary.java:67: error: cannot find symbol
+            linker = Linker.nativeLinker();
+            ^
+  symbol:   variable linker
+  location: class NativeLibrary
+/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/NativeLibrary.java:730: error: cannot find symbol
+            var symbolOpt = libraryLookup.find(name);
+                            ^
+  symbol:   variable libraryLookup
+  location: class NativeLibrary
+/Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/NativeLibrary.java:742: error: cannot find symbol
+            MethodHandle handle = linker.downcallHandle(symbol, descriptor);
+                                  ^
+  symbol:   variable linker
+  location: class NativeLibrary
+20 errors
+[Incubating] Problems report is available at: file:///Users/e168693/TeamCompose/submodules/llama.cpp/jvm/build/reports/problems/problems-report.html
+FAILURE: Build failed with an exception.
+* What went wrong:
+Execution failed for task ':impl-foreign:compileJava'.
+> Compilation failed; see the compiler output below.
+  /Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/NativeLibrary.java:4: error: cannot find symbol
+  import io.github.llama.impl.foreign.jextract.llama_h;
+                                              ^
+    symbol:   class llama_h
+    location: package io.github.llama.impl.foreign.jextract
+  /Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/JextractNativeLibrary.java:171: error: cannot find symbol
+              io.github.llama.impl.foreign.jextract.llama_h.llama_backend_init();
+                                                   ^
+    symbol:   class llama_h
+    location: package io.github.llama.impl.foreign.jextract
+  /Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/JextractNativeLibrary.java:183: error: cannot find symbol
+              io.github.llama.impl.foreign.jextract.llama_h.llama_backend_free();
+                                                   ^
+    symbol:   class llama_h
+    location: package io.github.llama.impl.foreign.jextract
+  /Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/JextractNativeLibrary.java:197: error: cannot find symbol
+              return io.github.llama.impl.foreign.jextract.llama_h.llama_model_default_params();
+                                                          ^
+    symbol:   class llama_h
+    location: package io.github.llama.impl.foreign.jextract
+  /Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/JextractNativeLibrary.java:216: error: cannot find symbol
+                  return io.github.llama.impl.foreign.jextract.llama_h.llama_model_load_from_file(pathSegment, params);
+                                                              ^
+    symbol:   class llama_h
+    location: package io.github.llama.impl.foreign.jextract
+  /Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/JextractNativeLibrary.java:231: error: cannot find symbol
+              io.github.llama.impl.foreign.jextract.llama_h.llama_model_free(model);
+                                                   ^
+    symbol:   class llama_h
+    location: package io.github.llama.impl.foreign.jextract
+  /Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/JextractNativeLibrary.java:246: error: cannot find symbol
+              return io.github.llama.impl.foreign.jextract.llama_h.llama_model_n_params(model);
+                                                          ^
+    symbol:   class llama_h
+    location: package io.github.llama.impl.foreign.jextract
+  /Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/JextractNativeLibrary.java:261: error: cannot find symbol
+              return io.github.llama.impl.foreign.jextract.llama_h.llama_model_n_ctx_train(model);
+                                                          ^
+    symbol:   class llama_h
+    location: package io.github.llama.impl.foreign.jextract
+  /Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/JextractNativeLibrary.java:276: error: cannot find symbol
+              return io.github.llama.impl.foreign.jextract.llama_h.llama_model_n_embd(model);
+                                                          ^
+    symbol:   class llama_h
+    location: package io.github.llama.impl.foreign.jextract
+  /Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/JextractNativeLibrary.java:291: error: cannot find symbol
+              return io.github.llama.impl.foreign.jextract.llama_h.llama_model_n_layer(model);
+                                                          ^
+    symbol:   class llama_h
+    location: package io.github.llama.impl.foreign.jextract
+  /Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/JextractNativeLibrary.java:306: error: cannot find symbol
+              return io.github.llama.impl.foreign.jextract.llama_h.llama_model_n_head(model);
+                                                          ^
+    symbol:   class llama_h
+    location: package io.github.llama.impl.foreign.jextract
+  /Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/JextractNativeLibrary.java:324: error: cannot find symbol
+                  int length = io.github.llama.impl.foreign.jextract.llama_h.llama_model_desc(model, buffer, 1024);
+                                                                    ^
+    symbol:   class llama_h
+    location: package io.github.llama.impl.foreign.jextract
+  /Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/JextractNativeLibrary.java:348: error: cannot find symbol
+              return io.github.llama.impl.foreign.jextract.llama_h.llama_model_get_vocab(model);
+                                                          ^
+    symbol:   class llama_h
+    location: package io.github.llama.impl.foreign.jextract
+  /Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/JextractNativeLibrary.java:362: error: cannot find symbol
+              return io.github.llama.impl.foreign.jextract.llama_h.llama_context_default_params();
+                                                          ^
+    symbol:   class llama_h
+    location: package io.github.llama.impl.foreign.jextract
+  /Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/JextractNativeLibrary.java:378: error: cannot find symbol
+              return io.github.llama.impl.foreign.jextract.llama_h.llama_init_from_model(model, params);
+                                                          ^
+    symbol:   class llama_h
+    location: package io.github.llama.impl.foreign.jextract
+  /Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/JextractNativeLibrary.java:392: error: cannot find symbol
+              io.github.llama.impl.foreign.jextract.llama_h.llama_free(context);
+                                                   ^
+    symbol:   class llama_h
+    location: package io.github.llama.impl.foreign.jextract
+  /Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/NativeLibrary.java:62: error: cannot find symbol
+              libraryLookup = SymbolLookup.loaderLookup();
+              ^
+    symbol:   variable libraryLookup
+    location: class NativeLibrary
+  /Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/NativeLibrary.java:67: error: cannot find symbol
+              linker = Linker.nativeLinker();
+              ^
+    symbol:   variable linker
+    location: class NativeLibrary
+  /Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/NativeLibrary.java:730: error: cannot find symbol
+              var symbolOpt = libraryLookup.find(name);
+                              ^
+    symbol:   variable libraryLookup
+    location: class NativeLibrary
+  /Users/e168693/TeamCompose/submodules/llama.cpp/jvm/impl-foreign/src/main/java/io/github/llama/impl/foreign/NativeLibrary.java:742: error: cannot find symbol
+              MethodHandle handle = linker.downcallHandle(symbol, descriptor);
+                                    ^
+    symbol:   variable linker
+    location: class NativeLibrary
+  20 errors
+* Try:
+> Check your code and dependencies to fix the compilation error(s)
+> Run with --scan to get full insights.
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+For more on this, please refer to https://docs.gradle.org/8.14/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+BUILD FAILED in 10s
+7 actionable tasks: 6 executed, 1 up-to-date
+Watched directory hierarchies: [/Users/e168693/TeamCompose/submodules/llama.cpp/jvm]

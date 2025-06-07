@@ -11,7 +11,7 @@ This directory contains two Java APIs for the llama.cpp library:
 
 To build the Java-centric API, you need:
 
-- Java 21 or later
+- Java 24 or later
 - Gradle 7.0 or later
 
 Run the following command from the `jvm` directory:
@@ -19,6 +19,30 @@ Run the following command from the `jvm` directory:
 ```bash
 ./gradlew build
 ```
+
+#### Native Library
+
+The Java-centric API uses the Java Foreign and Native Memory API to interact with the native llama.cpp library. The library is loaded using the following strategy:
+
+1. Check if a custom path is specified via the system property "llama.library.path"
+2. If not found, check the default path at "/Users/e168693/TeamCompose/submodules/llama.cpp/build/bin"
+3. If still not found, try to extract the library from the resources
+
+To specify a custom path, use:
+
+```bash
+java -Dllama.library.path=/path/to/library -jar your-app.jar
+```
+
+**Important:** Building the native library using CMake is required to ensure compatibility with the Java code's expectations. The Java Foreign and Native Memory API requires precise memory layout and function signatures that match the compiled library. The build process will automatically build the native library if CMake is available.
+
+**Why CMake is Needed:**
+- The Java FFM API makes assumptions about the memory layout of structs and function signatures
+- These assumptions must match the actual compiled library
+- Building with CMake ensures that the library is compiled with the correct options and flags
+- Using a pre-built library from another source may cause memory alignment issues or other incompatibilities
+
+If you have a compatible pre-built library (built with the same version of llama.cpp and the same compiler options), you can specify its path using the system property, but this is not recommended unless you're certain of compatibility.
 
 ### SWIG Bindings
 
@@ -286,7 +310,7 @@ java -cp build/llama.jar:src/test/java com.llama.LlamaTest
 ### Java-centric API
 
 - The API is still in development and may not cover all aspects of the llama.cpp API.
-- The Foreign implementation requires Java 21 or later.
+- The Foreign implementation requires Java 24 or later.
 - The implementation is a proof of concept and may not be optimized for performance.
 
 ### SWIG Bindings

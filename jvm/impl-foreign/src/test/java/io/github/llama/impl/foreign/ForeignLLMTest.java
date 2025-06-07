@@ -15,18 +15,51 @@ import io.github.llama.api.tokenization.Tokenizer;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 /**
  * Test class for the Foreign LLM implementation.
  * This class demonstrates how to use the Java API.
+ *
+ * Command-line options:
+ * --info-only    Load model, print info, and exit without running inference
+ * --help         Print usage information and exit
+ *
+ * If a model path is provided as an argument, it will be used instead of the default path.
  */
 public class ForeignLLMTest {
     static String MODEL_PATH = "/Users/e168693/.ollama/models/blobs/sha256-4ad960d180b16f56024f5b704697e5dd5b0837167c2e515ef0569abfc599743c";
-    public static void main(String[] args) {
 
+    /**
+     * Prints usage information for the test program.
+     */
+    private static void printUsage() {
+        System.out.println("Usage: ForeignLLMTest [options] [model_path]");
+        System.out.println("Options:");
+        System.out.println("  --info-only    Load model, print info, and exit without running inference");
+        System.out.println("  --help         Print this help message and exit");
+        System.out.println();
+        System.out.println("If model_path is not provided, a default path will be used.");
+    }
+
+    public static void main(String[] args) {
+        // Parse command-line arguments
+        boolean infoOnly = false;
+        String modelPathArg = null;
+
+        for (String arg : args) {
+            if (arg.equals("--info-only")) {
+                infoOnly = true;
+            } else if (arg.equals("--help")) {
+                printUsage();
+                return;
+            } else if (!arg.startsWith("--")) {
+                modelPathArg = arg;
+            }
+        }
 
         // Get the model path
-        Path modelPath =Paths.get((args.length < 1)?MODEL_PATH: args[0]);
+        Path modelPath = Paths.get(modelPathArg != null ? modelPathArg : MODEL_PATH);
 
         try {
             // Create model parameters
@@ -55,6 +88,12 @@ public class ForeignLLMTest {
                 System.out.println("Embedding size: " + modelInfo.getEmbeddingSize());
                 System.out.println("Layer count: " + modelInfo.getLayerCount());
                 System.out.println("Head count: " + modelInfo.getHeadCount());
+
+                // If info-only mode is enabled, exit here
+                if (infoOnly) {
+                    System.out.println("Info-only mode: exiting without running inference");
+                    return;
+                }
 
                 // Create context parameters
                 ContextParams contextParams = ContextParams.builder()

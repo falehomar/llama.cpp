@@ -1,21 +1,35 @@
 package io.github.llama.impl.foreign;
 
+import io.github.llama.impl.foreign.jextract.Llama;
+import io.github.llama.impl.foreign.jextract.llama_h;
+
 import java.io.IOException;
 import java.lang.foreign.*;
 import java.lang.invoke.MethodHandle;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 /**
  * Utility class for loading and interacting with the native llama.cpp library using the Java Foreign and Native Memory API.
+ *
+ * The native library is loaded using the following strategy:
+ * 1. Check if a custom path is specified via the system property "llama.library.path".
+ *    This can be either a direct path to the library file or a directory containing the library.
+ * 2. If not found, check the default path at "/Users/e168693/TeamCompose/submodules/llama.cpp/build/bin".
+ * 3. If still not found, try to extract the library from the resources.
+ *
+ * To specify a custom path, use: -Dllama.library.path=/path/to/library
+ *
+ * This implementation uses jextract-generated bindings for the llama.h header file.
  */
 public class NativeLibrary {
     private static final String LIBRARY_NAME = "llama";
+    private static final String DEFAULT_LIBRARY_PATH = "/Users/e168693/TeamCompose/submodules/llama.cpp/build/bin";
+    private static final String LIBRARY_PATH_PROPERTY = "llama.library.path";
     private static boolean initialized = false;
-    private static SymbolLookup libraryLookup;
-    private static Linker linker;
 
     /**
      * Initializes the native library.
@@ -26,25 +40,93 @@ public class NativeLibrary {
         }
 
         try {
-            // Extract the native library to a temporary file
-            Path libraryPath = extractNativeLibrary();
+            System.out.println("Initializing native library...");
+
+            // Try to find the native library in the default path first
+            Path libraryPath = findNativeLibrary();
+            if (libraryPath != null) {
+                System.out.println("Found native library at: " + libraryPath);
+            } else {
+                // If not found, extract the native library from resources to a temporary file
+                libraryPath = extractNativeLibrary();
+                System.out.println("Extracted native library to: " + libraryPath);
+            }
 
             // Load the native library
+            System.out.println("Loading native library...");
             System.load(libraryPath.toString());
+            System.out.println("Native library loaded successfully");
 
             // Create a symbol lookup for the library
+            System.out.println("Creating symbol lookup...");
             libraryLookup = SymbolLookup.loaderLookup();
+            System.out.println("Symbol lookup created successfully");
 
             // Create a linker for the current platform
+            System.out.println("Creating linker...");
             linker = Linker.nativeLinker();
+            System.out.println("Linker created successfully");
+
+            // Mark as initialized before calling any native methods
+            initialized = true;
+            System.out.println("Native library marked as initialized");
 
             // Initialize the llama backend
+            System.out.println("Initializing llama backend...");
             llamaBackendInit();
+            System.out.println("Llama backend initialized successfully");
 
-            initialized = true;
+            System.out.println("Native library initialization complete");
         } catch (Exception e) {
+            // Reset initialized flag if initialization fails
+            initialized = false;
+
+            System.err.println("Failed to initialize native library: " + e.getMessage());
+            e.printStackTrace();
             throw new RuntimeException("Failed to initialize native library", e);
         }
+    }
+
+    /**
+     * Finds the native library in the configured paths.
+     *
+     * @return Path to the native library, or null if not found
+     */
+    private static Path findNativeLibrary() {
+        String libraryFileName = System.mapLibraryName(LIBRARY_NAME);
+        System.out.println("Looking for library file: " + libraryFileName);
+
+        // First check if a custom path is specified via system property
+        String customPath = System.getProperty(LIBRARY_PATH_PROPERTY);
+        if (customPath != null && !customPath.isEmpty()) {
+            // Check if the custom path is a direct path to the library file
+            Path directPath = Paths.get(customPath);
+            if (Files.exists(directPath) && !Files.isDirectory(directPath)) {
+                System.out.println("Using direct library path: " + directPath);
+                return directPath;
+            }
+
+            // Otherwise, treat it as a directory and append the library filename
+            Path customLibraryPath = Paths.get(customPath, libraryFileName);
+            System.out.println("Checking custom path: " + customLibraryPath);
+
+            if (Files.exists(customLibraryPath)) {
+                return customLibraryPath;
+            }
+
+            System.out.println("Library not found at custom path");
+        }
+
+        // Then check the default path
+        Path defaultLibraryPath = Paths.get(DEFAULT_LIBRARY_PATH, libraryFileName);
+        System.out.println("Checking default path: " + defaultLibraryPath);
+
+        if (Files.exists(defaultLibraryPath)) {
+            return defaultLibraryPath;
+        }
+
+        System.out.println("Library not found at default path, will try to extract from resources");
+        return null;
     }
 
     /**
@@ -55,14 +137,31 @@ public class NativeLibrary {
      */
     private static Path extractNativeLibrary() throws IOException {
         String libraryFileName = System.mapLibraryName(LIBRARY_NAME);
-        Path tempFile = Files.createTempFile(LIBRARY_NAME, null);
+        System.out.println("Library file name: " + libraryFileName);
 
-        try (var inputStream = NativeLibrary.class.getResourceAsStream("/native/" + libraryFileName)) {
+        Path tempFile = Files.createTempFile(LIBRARY_NAME, null);
+        System.out.println("Created temp file: " + tempFile);
+
+        String resourcePath = "/native/" + libraryFileName;
+        System.out.println("Looking for resource: " + resourcePath);
+
+        try (var inputStream = NativeLibrary.class.getResourceAsStream(resourcePath)) {
             if (inputStream == null) {
-                throw new IOException("Native library not found in resources: " + libraryFileName);
+                System.err.println("Native library not found in resources: " + resourcePath);
+
+                // List available resources in the /native directory
+                System.out.println("Available resources in /native directory:");
+                var urls = NativeLibrary.class.getClassLoader().getResources("native");
+                while (urls.hasMoreElements()) {
+                    System.out.println("  " + urls.nextElement());
+                }
+
+                throw new IOException("Native library not found in resources: " + resourcePath);
             }
 
+            System.out.println("Found native library in resources, copying to temp file...");
             Files.copy(inputStream, tempFile, StandardCopyOption.REPLACE_EXISTING);
+            System.out.println("Native library copied to temp file: " + tempFile);
         }
 
         return tempFile;
@@ -117,7 +216,7 @@ public class NativeLibrary {
     public static MemorySegment llamaModelLoadFromFile(String path, MemorySegment params) {
         try {
             try (Arena arena = Arena.ofConfined()) {
-                MemorySegment pathSegment = arena.allocateUtf8String(path);
+                MemorySegment pathSegment = arena.allocateFrom(path);
 
                 MethodHandle handle = getMethodHandle("llama_model_load_from_file",
                     FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.ADDRESS));
@@ -244,7 +343,7 @@ public class NativeLibrary {
                     return "";
                 }
 
-                return buffer.getUtf8String(0);
+                return buffer.getString(0);
             }
         } catch (Throwable e) {
             throw new RuntimeException("Failed to get model description", e);
@@ -326,7 +425,7 @@ public class NativeLibrary {
     public static int[] llamaTokenize(MemorySegment vocab, String text, boolean addBos, boolean addEos) {
         try {
             try (Arena arena = Arena.ofConfined()) {
-                MemorySegment textSegment = arena.allocateUtf8String(text);
+                MemorySegment textSegment = arena.allocateFrom(text);
                 int textLen = text.length();
 
                 // Allocate a buffer for the tokens (assuming max 4 tokens per character)
@@ -618,10 +717,37 @@ public class NativeLibrary {
      * @return Method handle
      */
     private static MethodHandle getMethodHandle(String name, FunctionDescriptor descriptor) {
-        MemorySegment symbol = libraryLookup.find(name)
-            .orElseThrow(() -> new RuntimeException("Native function not found: " + name));
+        System.out.println("Getting method handle for: " + name);
 
-        return linker.downcallHandle(symbol, descriptor);
+        if (!initialized) {
+            System.err.println("Native library not initialized");
+            throw new IllegalStateException("Native library not initialized");
+        }
+
+        try {
+            // Look up the symbol
+            System.out.println("Looking up symbol: " + name);
+            var symbolOpt = libraryLookup.find(name);
+
+            if (symbolOpt.isEmpty()) {
+                System.err.println("Symbol not found: " + name);
+                throw new RuntimeException("Native function not found: " + name);
+            }
+
+            MemorySegment symbol = symbolOpt.get();
+            System.out.println("Symbol found: " + name + " at address: " + symbol.address());
+
+            // Create a method handle for the function
+            System.out.println("Creating method handle for: " + name);
+            MethodHandle handle = linker.downcallHandle(symbol, descriptor);
+            System.out.println("Method handle created successfully for: " + name);
+
+            return handle;
+        } catch (Exception e) {
+            System.err.println("Error getting method handle for " + name + ": " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Failed to get method handle for: " + name, e);
+        }
     }
 
     /**

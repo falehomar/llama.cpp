@@ -1,3 +1,6 @@
 [submodule "kompute"]
 	path = ggml/src/ggml-kompute/kompute
 	url = https://github.com/nomic-ai/kompute.git
+[submodule "jvm/jextract"]
+	path = jvm/jextract
+	url = https://github.com/openjdk/jextract.git

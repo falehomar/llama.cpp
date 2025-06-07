@@ -133,6 +133,20 @@ To get the basic functionality of `ForeignLLMTest` working, the following implem
 5. Fifth Priority: Resource management (items 19-22, item 22 completed)
 6. Throughout: Native library support (items 23-24, item 23 completed)
 
+## Build Process
+
+The build process for the `impl-foreign` implementation has been improved:
+
+- ✅ Uses CMake to build a compatible native library
+- ✅ Directly loads the native library from its location (default path, custom path, or resources)
+- ✅ Supports specifying a custom library path via the system property "llama.library.path"
+- ✅ Provides better error messages when the native library cannot be built or found
+
+**Why CMake is Required:**
+Building the native library using CMake is required to ensure compatibility with the Java code's expectations. The Java Foreign and Native Memory API requires precise memory layout and function signatures that match the compiled library. Using a pre-built library from another source may cause memory alignment issues or other incompatibilities.
+
+The build process will automatically build the native library if CMake is available. If you have a compatible pre-built library (built with the same version of llama.cpp and the same compiler options), you can specify its path using the system property, but this is not recommended unless you're certain of compatibility.
+
 ## Conclusion
 
 The `impl-foreign` implementation has made significant progress. The class structure and interface implementations are in place, and the model loading and information retrieval functionality is now fully implemented. This represents the completion of the first priority in the implementation plan.
@@ -140,3 +154,5 @@ The `impl-foreign` implementation has made significant progress. The class struc
 The implementation now provides a foundation for a Java-centric API using the Java Foreign and Native Memory API, with the ability to load models and retrieve basic information about them. However, work is still needed to implement tokenization, context and batch processing, sampling, and resource management.
 
 To complete the `ForeignLLMTest` POC, approximately 16 more native function bindings need to be implemented across the various classes. This represents a substantial but well-defined development effort that would result in a fully functional Java API for llama.cpp using the modern Java Foreign and Native Memory API.
+
+The build process has been improved to provide better error handling and documentation about why CMake is required for building a compatible native library.
