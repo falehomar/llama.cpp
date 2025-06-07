@@ -4,6 +4,7 @@ import io.github.llama.api.BackendManager;
 import io.github.llama.impl.llamacpp.ffm.llama_h;
 
 import java.lang.foreign.MemorySegment;
+import java.lang.foreign.ValueLayout;
 
 /**
  * Implementation of the BackendManager interface using the Foreign Function & Memory API.
@@ -77,7 +78,31 @@ public class ForeignBackendManager implements BackendManager {
         if (infoSegment == null || infoSegment.equals(MemorySegment.NULL)) {
             return "";
         }
-        return infoSegment.toString();
+
+        // Convert C string to Java string
+        return readCString(infoSegment);
+    }
+
+    /**
+     * Reads a C string from a memory segment.
+     *
+     * @param segment Memory segment containing a C string
+     * @return Java string
+     */
+    private String readCString(MemorySegment segment) {
+        // Find the null terminator
+        long length = 0;
+        while (segment.get(ValueLayout.JAVA_BYTE, length) != 0) {
+            length++;
+        }
+
+        // Convert to Java string
+        byte[] bytes = new byte[(int) length];
+        for (int i = 0; i < length; i++) {
+            bytes[i] = segment.get(ValueLayout.JAVA_BYTE, i);
+        }
+
+        return new String(bytes, java.nio.charset.StandardCharsets.UTF_8);
     }
 
     @Override

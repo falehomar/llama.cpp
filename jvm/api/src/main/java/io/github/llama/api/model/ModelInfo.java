@@ -42,6 +42,27 @@ public interface ModelInfo {
     int getHeadCount();
 
     /**
+     * Gets the number of key-value heads.
+     *
+     * @return Number of key-value heads
+     */
+    int getKvHeadCount();
+
+    /**
+     * Gets the RoPE frequency scaling factor.
+     *
+     * @return RoPE frequency scaling factor
+     */
+    float getRopeFreqScaleTrain();
+
+    /**
+     * Gets the RoPE type.
+     *
+     * @return RoPE type
+     */
+    int getRopeType();
+
+    /**
      * Gets a metadata value as a string.
      *
      * @param key Metadata key
@@ -62,4 +83,46 @@ public interface ModelInfo {
      * @return Model description
      */
     String getDescription();
+
+    /**
+     * Gets the total size of all tensors in the model.
+     *
+     * @return Total size in bytes
+     */
+    long getSize();
+
+    /**
+     * Gets the default chat template.
+     *
+     * @return Default chat template, or null if not available
+     */
+    String getChatTemplate();
+
+    /**
+     * Checks if the model contains an encoder.
+     *
+     * @return true if the model contains an encoder, false otherwise
+     */
+    boolean hasEncoder();
+
+    /**
+     * Checks if the model contains a decoder.
+     *
+     * @return true if the model contains a decoder, false otherwise
+     */
+    boolean hasDecoder();
+
+    /**
+     * Gets the decoder start token.
+     *
+     * @return Decoder start token
+     */
+    int getDecoderStartToken();
+
+    /**
+     * Checks if the model is recurrent.
+     *
+     * @return true if the model is recurrent, false otherwise
+     */
+    boolean isRecurrent();
 }

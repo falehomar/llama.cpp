@@ -2,9 +2,13 @@
 
 # Script to run the llama.cpp server API tests
 
+# Source the script to set Java 21
+source "$(dirname "${BASH_SOURCE[0]}")/set-java-version.sh"
+# The sdkjava21 function is automatically called when the script is sourced
+
 # Set root directory
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd ../../../.. && pwd)"
-API_TEST_DIR="${REPO_ROOT}/tools/server/api-test"
+API_TEST_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${API_TEST_DIR}" && cd ../../.. && pwd)"
 
 # Check if server is running
 echo "Checking if llama.cpp server is running..."
