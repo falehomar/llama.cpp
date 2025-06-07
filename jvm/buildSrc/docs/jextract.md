@@ -64,7 +64,7 @@ The following table shows how each jextract option is supported by the Gradle pl
 | `-t, --target-package <package>` | `targetPackage` | None (Required) | Target package for generated classes |
 | `--symbols-class-name <name>` | `symbolsClassName` | None | Override the name of the root header class |
 | `-D --define-macro <macro>=<value>` | `defineMacros` | None | Map of macro definitions (key-value pairs) |
-| `--dump-includes <file>` | `dumpIncludesFile` | None | File to dump included symbols into |
+| `--dump-includes <file>` | `dumpIncludesFile` | Derived from header file name | File to dump included symbols into. If not specified, it will be derived from the header file name and placed in the build directory |
 | `-l, --library <libspec>` | `libraries` | None | List of libraries to load |
 | `--use-system-load-library` | `useSystemLoadLibrary` | `false` | Whether to use System.loadLibrary/System.load for loading libraries |
 | `--version` | Not supported | N/A | Not applicable for the plugin |
@@ -115,3 +115,33 @@ jextract {
 ```
 ## Required enhancements
 1. all options must be supported.
+
+## Using the dump-includes task
+
+The plugin provides a dedicated task called `dump-includes` that can be used to generate a dump of all symbols encountered in a header file. This dump can be manipulated and then used as an argument file for filtering symbols when generating bindings.
+
+### Example Usage
+
+```gradle
+// Configure the jextract extension with the header file
+jextract {
+    headerFile = file('src/main/headers/example.h')
+    // dumpIncludesFile is optional - if not specified, it will be derived from the header file name
+    // and placed in the build directory (e.g., build/example.includes)
+    dumpIncludesFile = file('build/custom-includes.txt')  // Optional
+}
+
+// Run the dump-includes task to generate a dump of all symbols
+./gradlew dump-includes
+
+// Edit the dump file to keep only the symbols you want
+
+// Use the dump file as an argument file when running jextract
+./gradlew jextract -Pjextract.args=@build/example-includes.txt
+```
+
+The dump file contains one symbol per line, with the symbol type and name. You can edit this file to remove symbols you don't want to include in the generated bindings.
+
+When using the dump file as an argument file, prefix it with `@` to tell jextract to read arguments from the file. This follows the standard JDK tools convention for argument files.
+
+If you don't specify a `dumpIncludesFile` in your build.gradle, the task will automatically generate a file in the build directory with a name derived from the header file. For example, if your header file is named `example.h`, the dump file will be `build/example.includes`.

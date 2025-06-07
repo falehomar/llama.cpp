@@ -34,7 +34,7 @@ public class JextractPlugin implements Plugin<Project> {
         // Default debug value is false
         extension.getDebug().convention(false);
 
-        // Register the task
+        // Register the jextract task
         project.getTasks().register("jextract", JextractTask.class, task -> {
             // Set the task group
             task.setGroup("jextract");
@@ -60,6 +60,25 @@ public class JextractPlugin implements Plugin<Project> {
             task.getUseSystemLoadLibrary().set(extension.getUseSystemLoadLibrary());
             task.getFrameworkDirs().set(extension.getFrameworkDirs());
             task.getFrameworks().set(extension.getFrameworks());
+            task.getDebug().set(extension.getDebug());
+        });
+
+        // Register the dump-includes task
+        project.getTasks().register("dump-includes", JextractDumpIncludesTask.class, task -> {
+            // Set the task group
+            task.setGroup("jextract");
+
+            task.getJextractPath().set(extension.getJextractPath());
+            task.getHeaderFile().set(extension.getHeaderFile());
+
+            // Only set dumpIncludesFile if it's present in the extension
+            if (extension.getDumpIncludesFile().isPresent()) {
+                task.getDumpIncludesFile().set(extension.getDumpIncludesFile());
+            }
+
+            task.getIncludePaths().set(extension.getIncludePaths());
+            task.getDefineMacros().set(extension.getDefineMacros());
+            task.getFrameworkDirs().set(extension.getFrameworkDirs());
             task.getDebug().set(extension.getDebug());
         });
 
