@@ -1,0 +1,7 @@
+micronaut:
+  application:
+    name: llamaCppApiTest
+
+llama:
+  model:
+    path: /Users/e168693/.ollama/models/blobs/sha256-4ad960d180b16f56024f5b704697e5dd5b0837167c2e515ef0569abfc599743c

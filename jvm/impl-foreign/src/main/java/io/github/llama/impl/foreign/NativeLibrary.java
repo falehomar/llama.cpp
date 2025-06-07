@@ -1,6 +1,5 @@
 package io.github.llama.impl.foreign;
 
-import io.github.llama.impl.foreign.jextract.Llama;
 
 import java.io.IOException;
 import java.lang.foreign.*;
@@ -29,6 +28,8 @@ public class NativeLibrary {
     private static final String DEFAULT_LIBRARY_PATH = "/Users/e168693/TeamCompose/submodules/llama.cpp/build/bin";
     private static final String LIBRARY_PATH_PROPERTY = "llama.library.path";
     private static boolean initialized = false;
+    private static SymbolLookup libraryLookup;
+    private static Linker linker;
 
     /**
      * Initializes the native library.
