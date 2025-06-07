@@ -142,4 +142,13 @@ public class LlamaJniBackend {
      * @return Default model parameters
      */
     public static native ModelParams llama_get_model_default_params();
+
+    /**
+     * Sample methods
+     */
+    public static native float[] llama_sample_softmax(float[] logits);
+    public static native float[] llama_sample_temperature(float[] logits, float temperature, long context);
+    public static native float[] llama_sample_top_p(float[] probs, float topP, int minKeep, long context);
+    public static native float[] llama_sample_top_k(float[] probs, int topK, long context);
+    public static native int llama_sample_token(float[] probs, long seed);
 }

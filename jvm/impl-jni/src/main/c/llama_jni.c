@@ -448,3 +448,367 @@ JNIEXPORT jobject JNICALL Java_io_github_llama_impl_jni_LlamaJniBackend_llama_1g
 
     return jModelParams;
 }
+
+/*
+ * Class:     io_github_llama_impl_jni_LlamaJniBackend
+ * Method:    llama_sample_softmax
+ * Signature: ([F)[F
+ */
+JNIEXPORT jfloatArray JNICALL Java_io_github_llama_impl_jni_LlamaJniBackend_llama_1sample_1softmax
+  (JNIEnv *env, jclass cls, jfloatArray jLogits) {
+    // Get logits from Java array
+    jsize len = (*env)->GetArrayLength(env, jLogits);
+    float *logits = (*env)->GetFloatArrayElements(env, jLogits, NULL);
+    if (logits == NULL) {
+        throwJavaException(env, "java/lang/OutOfMemoryError", "Failed to get logits array");
+        return NULL;
+    }
+
+    // Create a result array
+    jfloatArray result = (*env)->NewFloatArray(env, len);
+    if (result == NULL) {
+        (*env)->ReleaseFloatArrayElements(env, jLogits, logits, JNI_ABORT);
+        throwJavaException(env, "java/lang/OutOfMemoryError", "Failed to allocate result array");
+        return NULL;
+    }
+
+    // Apply softmax
+    llama_token_data *candidates = malloc(len * sizeof(llama_token_data));
+    if (candidates == NULL) {
+        (*env)->ReleaseFloatArrayElements(env, jLogits, logits, JNI_ABORT);
+        throwJavaException(env, "java/lang/OutOfMemoryError", "Failed to allocate candidates");
+        return NULL;
+    }
+
+    // Prepare candidates
+    for (int i = 0; i < len; i++) {
+        candidates[i].id = i;
+        candidates[i].logit = logits[i];
+        candidates[i].p = 0.0f;
+    }
+
+    // Apply softmax
+    llama_token_data_array candidates_array = {
+        candidates, len, false
+    };
+    llama_sample_softmax(NULL, &candidates_array);
+
+    // Extract probabilities
+    float *probs = malloc(len * sizeof(float));
+    if (probs == NULL) {
+        free(candidates);
+        (*env)->ReleaseFloatArrayElements(env, jLogits, logits, JNI_ABORT);
+        throwJavaException(env, "java/lang/OutOfMemoryError", "Failed to allocate probabilities");
+        return NULL;
+    }
+
+    for (int i = 0; i < len; i++) {
+        probs[i] = candidates[i].p;
+    }
+
+    // Set the result
+    (*env)->SetFloatArrayRegion(env, result, 0, len, probs);
+
+    // Clean up
+    free(candidates);
+    free(probs);
+    (*env)->ReleaseFloatArrayElements(env, jLogits, logits, JNI_ABORT);
+
+    return result;
+}
+
+/*
+ * Class:     io_github_llama_impl_jni_LlamaJniBackend
+ * Method:    llama_sample_top_p
+ * Signature: ([FIFJ)[F
+ */
+JNIEXPORT jfloatArray JNICALL Java_io_github_llama_impl_jni_LlamaJniBackend_llama_1sample_1top_1p
+  (JNIEnv *env, jclass cls, jfloatArray jProbs, jfloat jTopP, jint jMinKeep, jlong jCtx) {
+    // Get probabilities from Java array
+    jsize len = (*env)->GetArrayLength(env, jProbs);
+    float *probs = (*env)->GetFloatArrayElements(env, jProbs, NULL);
+    if (probs == NULL) {
+        throwJavaException(env, "java/lang/OutOfMemoryError", "Failed to get probabilities array");
+        return NULL;
+    }
+
+    // Get context pointer (could be NULL)
+    struct llama_context *ctx = (struct llama_context *)jCtx;
+
+    // Create a result array
+    jfloatArray result = (*env)->NewFloatArray(env, len);
+    if (result == NULL) {
+        (*env)->ReleaseFloatArrayElements(env, jProbs, probs, JNI_ABORT);
+        throwJavaException(env, "java/lang/OutOfMemoryError", "Failed to allocate result array");
+        return NULL;
+    }
+
+    // Apply top-p sampling
+    llama_token_data *candidates = malloc(len * sizeof(llama_token_data));
+    if (candidates == NULL) {
+        (*env)->ReleaseFloatArrayElements(env, jProbs, probs, JNI_ABORT);
+        throwJavaException(env, "java/lang/OutOfMemoryError", "Failed to allocate candidates");
+        return NULL;
+    }
+
+    // Prepare candidates
+    for (int i = 0; i < len; i++) {
+        candidates[i].id = i;
+        candidates[i].p = probs[i];
+        candidates[i].logit = 0.0f; // Not used in top-p sampling
+    }
+
+    // Apply top-p sampling
+    llama_token_data_array candidates_array = {
+        candidates, len, false
+    };
+    llama_sample_top_p(ctx, &candidates_array, jTopP, jMinKeep);
+
+    // Extract filtered probabilities
+    float *filtered_probs = malloc(len * sizeof(float));
+    if (filtered_probs == NULL) {
+        free(candidates);
+        (*env)->ReleaseFloatArrayElements(env, jProbs, probs, JNI_ABORT);
+        throwJavaException(env, "java/lang/OutOfMemoryError", "Failed to allocate filtered probabilities");
+        return NULL;
+    }
+
+    float sum = 0.0f;
+    for (int i = 0; i < len; i++) {
+        filtered_probs[i] = 0.0f; // Initialize all to zero
+    }
+
+    // Copy probabilities for tokens that survived the filtering
+    for (int i = 0; i < candidates_array.size; i++) {
+        if (candidates_array.sorted) {
+            filtered_probs[candidates[i].id] = candidates[i].p;
+        } else {
+            filtered_probs[i] = candidates[i].p;
+        }
+        sum += candidates[i].p;
+    }
+
+    // Renormalize
+    if (sum > 0.0f) {
+        for (int i = 0; i < len; i++) {
+            filtered_probs[i] /= sum;
+        }
+    }
+
+    // Set the result
+    (*env)->SetFloatArrayRegion(env, result, 0, len, filtered_probs);
+
+    // Clean up
+    free(candidates);
+    free(filtered_probs);
+    (*env)->ReleaseFloatArrayElements(env, jProbs, probs, JNI_ABORT);
+
+    return result;
+}
+
+/*
+ * Class:     io_github_llama_impl_jni_LlamaJniBackend
+ * Method:    llama_sample_top_k
+ * Signature: ([FIJ)[F
+ */
+JNIEXPORT jfloatArray JNICALL Java_io_github_llama_impl_jni_LlamaJniBackend_llama_1sample_1top_1k
+  (JNIEnv *env, jclass cls, jfloatArray jProbs, jint jTopK, jlong jCtx) {
+    // Get probabilities from Java array
+    jsize len = (*env)->GetArrayLength(env, jProbs);
+    float *probs = (*env)->GetFloatArrayElements(env, jProbs, NULL);
+    if (probs == NULL) {
+        throwJavaException(env, "java/lang/OutOfMemoryError", "Failed to get probabilities array");
+        return NULL;
+    }
+
+    // Get context pointer (could be NULL)
+    struct llama_context *ctx = (struct llama_context *)jCtx;
+
+    // Create a result array
+    jfloatArray result = (*env)->NewFloatArray(env, len);
+    if (result == NULL) {
+        (*env)->ReleaseFloatArrayElements(env, jProbs, probs, JNI_ABORT);
+        throwJavaException(env, "java/lang/OutOfMemoryError", "Failed to allocate result array");
+        return NULL;
+    }
+
+    // Apply top-k sampling
+    llama_token_data *candidates = malloc(len * sizeof(llama_token_data));
+    if (candidates == NULL) {
+        (*env)->ReleaseFloatArrayElements(env, jProbs, probs, JNI_ABORT);
+        throwJavaException(env, "java/lang/OutOfMemoryError", "Failed to allocate candidates");
+        return NULL;
+    }
+
+    // Prepare candidates
+    for (int i = 0; i < len; i++) {
+        candidates[i].id = i;
+        candidates[i].p = probs[i];
+        candidates[i].logit = 0.0f; // Not used in top-k sampling
+    }
+
+    // Apply top-k sampling
+    llama_token_data_array candidates_array = {
+        candidates, len, false
+    };
+    llama_sample_top_k(ctx, &candidates_array, jTopK, 1);
+
+    // Extract filtered probabilities
+    float *filtered_probs = malloc(len * sizeof(float));
+    if (filtered_probs == NULL) {
+        free(candidates);
+        (*env)->ReleaseFloatArrayElements(env, jProbs, probs, JNI_ABORT);
+        throwJavaException(env, "java/lang/OutOfMemoryError", "Failed to allocate filtered probabilities");
+        return NULL;
+    }
+
+    float sum = 0.0f;
+    for (int i = 0; i < len; i++) {
+        filtered_probs[i] = 0.0f; // Initialize all to zero
+    }
+
+    // Copy probabilities for tokens that survived the filtering
+    for (int i = 0; i < candidates_array.size; i++) {
+        if (candidates_array.sorted) {
+            filtered_probs[candidates[i].id] = candidates[i].p;
+        } else {
+            filtered_probs[i] = candidates[i].p;
+        }
+        sum += candidates[i].p;
+    }
+
+    // Renormalize
+    if (sum > 0.0f) {
+        for (int i = 0; i < len; i++) {
+            filtered_probs[i] /= sum;
+        }
+    }
+
+    // Set the result
+    (*env)->SetFloatArrayRegion(env, result, 0, len, filtered_probs);
+
+    // Clean up
+    free(candidates);
+    free(filtered_probs);
+    (*env)->ReleaseFloatArrayElements(env, jProbs, probs, JNI_ABORT);
+
+    return result;
+}
+
+/*
+ * Class:     io_github_llama_impl_jni_LlamaJniBackend
+ * Method:    llama_sample_temperature
+ * Signature: ([FFJ)[F
+ */
+JNIEXPORT jfloatArray JNICALL Java_io_github_llama_impl_jni_LlamaJniBackend_llama_1sample_1temperature
+  (JNIEnv *env, jclass cls, jfloatArray jLogits, jfloat jTemperature, jlong jCtx) {
+    // Get logits from Java array
+    jsize len = (*env)->GetArrayLength(env, jLogits);
+    float *logits = (*env)->GetFloatArrayElements(env, jLogits, NULL);
+    if (logits == NULL) {
+        throwJavaException(env, "java/lang/OutOfMemoryError", "Failed to get logits array");
+        return NULL;
+    }
+
+    // Get context pointer (could be NULL)
+    struct llama_context *ctx = (struct llama_context *)jCtx;
+
+    // Create a result array
+    jfloatArray result = (*env)->NewFloatArray(env, len);
+    if (result == NULL) {
+        (*env)->ReleaseFloatArrayElements(env, jLogits, logits, JNI_ABORT);
+        throwJavaException(env, "java/lang/OutOfMemoryError", "Failed to allocate result array");
+        return NULL;
+    }
+
+    // Apply temperature
+    llama_token_data *candidates = malloc(len * sizeof(llama_token_data));
+    if (candidates == NULL) {
+        (*env)->ReleaseFloatArrayElements(env, jLogits, logits, JNI_ABORT);
+        throwJavaException(env, "java/lang/OutOfMemoryError", "Failed to allocate candidates");
+        return NULL;
+    }
+
+    // Prepare candidates
+    for (int i = 0; i < len; i++) {
+        candidates[i].id = i;
+        candidates[i].logit = logits[i];
+        candidates[i].p = 0.0f;
+    }
+
+    // Apply temperature
+    llama_token_data_array candidates_array = {
+        candidates, len, false
+    };
+    llama_sample_temperature(ctx, &candidates_array, jTemperature);
+
+    // Extract modified logits
+    float *modified_logits = malloc(len * sizeof(float));
+    if (modified_logits == NULL) {
+        free(candidates);
+        (*env)->ReleaseFloatArrayElements(env, jLogits, logits, JNI_ABORT);
+        throwJavaException(env, "java/lang/OutOfMemoryError", "Failed to allocate modified logits");
+        return NULL;
+    }
+
+    for (int i = 0; i < len; i++) {
+        modified_logits[i] = candidates[i].logit;
+    }
+
+    // Set the result
+    (*env)->SetFloatArrayRegion(env, result, 0, len, modified_logits);
+
+    // Clean up
+    free(candidates);
+    free(modified_logits);
+    (*env)->ReleaseFloatArrayElements(env, jLogits, logits, JNI_ABORT);
+
+    return result;
+}
+
+/*
+ * Class:     io_github_llama_impl_jni_LlamaJniBackend
+ * Method:    llama_sample_token
+ * Signature: ([FJ)I
+ */
+JNIEXPORT jint JNICALL Java_io_github_llama_impl_jni_LlamaJniBackend_llama_1sample_1token
+  (JNIEnv *env, jclass cls, jfloatArray jProbs, jlong jSeed) {
+    // Get probabilities from Java array
+    jsize len = (*env)->GetArrayLength(env, jProbs);
+    float *probs = (*env)->GetFloatArrayElements(env, jProbs, NULL);
+    if (probs == NULL) {
+        throwJavaException(env, "java/lang/OutOfMemoryError", "Failed to get probabilities array");
+        return -1;
+    }
+
+    // Prepare candidates
+    llama_token_data *candidates = malloc(len * sizeof(llama_token_data));
+    if (candidates == NULL) {
+        (*env)->ReleaseFloatArrayElements(env, jProbs, probs, JNI_ABORT);
+        throwJavaException(env, "java/lang/OutOfMemoryError", "Failed to allocate candidates");
+        return -1;
+    }
+
+    for (int i = 0; i < len; i++) {
+        candidates[i].id = i;
+        candidates[i].p = probs[i];
+        candidates[i].logit = 0.0f; // Not used for sampling
+    }
+
+    // Sample token
+    llama_token_data_array candidates_array = {
+        candidates, len, false
+    };
+
+    // Set up a deterministic RNG if seed is provided
+    uint32_t rng_seed = (uint32_t)(jSeed != 0 ? jSeed : time(NULL));
+    llama_sampling_init(rng_seed);
+
+    llama_token token = llama_sample_token(NULL, &candidates_array);
+
+    // Clean up
+    free(candidates);
+    (*env)->ReleaseFloatArrayElements(env, jProbs, probs, JNI_ABORT);
+
+    return token;
+}

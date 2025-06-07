@@ -1,5 +1,6 @@
 package io.github.llama.impl.foreign;
 
+import io.github.llama.impl.foreign.jextract.Llama;
 import java.io.IOException;
 import java.lang.foreign.*;
 import java.nio.charset.StandardCharsets;
@@ -168,7 +169,7 @@ public class JextractNativeLibrary {
     public static void llamaBackendInit() {
         try {
             // Use the jextract-generated binding
-            io.github.llama.impl.foreign.jextract.llama_h.llama_backend_init();
+            Llama.llama_backend_init();
         } catch (Throwable e) {
             throw new RuntimeException("Failed to initialize llama backend", e);
         }

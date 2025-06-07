@@ -1,7 +1,6 @@
 package io.github.llama.impl.foreign;
 
 import io.github.llama.impl.foreign.jextract.Llama;
-import io.github.llama.impl.foreign.jextract.llama_h;
 
 import java.io.IOException;
 import java.lang.foreign.*;
