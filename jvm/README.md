@@ -294,7 +294,7 @@ The bindings include:
 A test class is provided in `jvm/impl-foreign/src/test/java/io/github/llama/impl/foreign/ForeignLLMTest.java`. To run the test, build the API and then run:
 
 ```bash
-java -cp jvm/impl-foreign/build/libs/impl-foreign-0.1.0.jar:jvm/api/build/libs/api-0.1.0.jar io.github.llama.impl.foreign.ForeignLLMTest path/to/model.gguf
+java -cp jvm/impl-foreign/build/libs/impl-foreign-0.1.0.jar:jvm/api/build/libs/api-0.1.0.jar io.github.llama.impl.ffm.ForeignLLMTest path/to/model.gguf
 ```
 
 ### SWIG Bindings

@@ -601,7 +601,7 @@ public enum SpecialToken {
 
 ## Implementation Classes
 
-The implementation classes will be in a separate package, e.g., `io.github.llama.impl.llamacpp`, and will not be directly exposed to users of the API. They will be loaded through the factory mechanism.
+The implementation classes will be in a separate package, e.g., `io.github.llama.impl.llamacpp.ffm`, and will not be directly exposed to users of the API. They will be loaded through the factory mechanism.
 
 ## Example Usage
 
