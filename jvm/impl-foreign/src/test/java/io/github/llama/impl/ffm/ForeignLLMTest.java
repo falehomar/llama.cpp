@@ -1,6 +1,7 @@
 package io.github.llama.impl.ffm;
 
 
+import io.github.llama.impl.llamacpp.ffm.llama_h;
 import org.junit.jupiter.api.Test;
 
 public class ForeignLLMTest {
