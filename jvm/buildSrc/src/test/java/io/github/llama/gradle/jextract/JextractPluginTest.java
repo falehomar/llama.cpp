@@ -90,7 +90,7 @@ public class JextractPluginTest {
 
         // Verify that the plugin task is listed
         String output = result.getOutput();
-        assertTrue(output.contains("generateJextract"), "generateJextract task should be listed");
+        assertTrue(output.contains("jextract"), "jextract task should be listed");
     }
 
     @Test
@@ -146,11 +146,11 @@ public class JextractPluginTest {
         BuildResult result = GradleRunner.create()
             .withProjectDir(testProjectDir.toFile())
             .withPluginClasspath()
-            .withArguments("generateJextract", "--stacktrace")
+            .withArguments("jextract", "--stacktrace")
             .build();
 
         // Verify that the generate task succeeds
-        assertEquals(TaskOutcome.SUCCESS, result.task(":generateJextract").getOutcome());
+        assertEquals(TaskOutcome.SUCCESS, result.task(":jextract").getOutcome());
 
         // Verify that the output directory was created
         File outputDir = testProjectDir.resolve("build/generated/jextract").toFile();
@@ -222,11 +222,11 @@ public class JextractPluginTest {
         BuildResult result = GradleRunner.create()
             .withProjectDir(testProjectDir.toFile())
             .withPluginClasspath()
-            .withArguments("generateJextract", "--stacktrace")
+            .withArguments("jextract", "--stacktrace")
             .build();
 
         // Verify that the generate task succeeds
-        assertEquals(TaskOutcome.SUCCESS, result.task(":generateJextract").getOutcome());
+        assertEquals(TaskOutcome.SUCCESS, result.task(":jextract").getOutcome());
 
         // Verify that the custom output directory was created
         File customOutputDir = testProjectDir.resolve("build/custom-jextract-output").toFile();
@@ -294,9 +294,9 @@ public class JextractPluginTest {
         // Verify that the compileJava task succeeds
         assertEquals(TaskOutcome.SUCCESS, result.task(":compileJava").getOutcome());
 
-        // Verify that the generateJextract task was executed as a dependency
-        assertNotNull(result.task(":generateJextract"), "generateJextract task should be executed");
-        assertEquals(TaskOutcome.SUCCESS, result.task(":generateJextract").getOutcome());
+        // Verify that the jextract task was executed as a dependency
+        assertNotNull(result.task(":jextract"), "jextract task should be executed");
+        assertEquals(TaskOutcome.SUCCESS, result.task(":jextract").getOutcome());
 
         // Verify that the generated Java file was compiled
         File classFile = testProjectDir.resolve("build/classes/java/main/com/example/test/TestHeader.class").toFile();

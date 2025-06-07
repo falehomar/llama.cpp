@@ -35,7 +35,10 @@ public class JextractPlugin implements Plugin<Project> {
         extension.getDebug().convention(false);
 
         // Register the task
-        project.getTasks().register("generateJextract", JextractTask.class, task -> {
+        project.getTasks().register("jextract", JextractTask.class, task -> {
+            // Set the task group
+            task.setGroup("jextract");
+
             task.getJextractPath().set(extension.getJextractPath());
             task.getHeaderFile().set(extension.getHeaderFile());
             task.getTargetPackage().set(extension.getTargetPackage());
@@ -68,9 +71,9 @@ public class JextractPlugin implements Plugin<Project> {
             // Add the generated sources directory to the main source set
             mainSourceSet.getJava().srcDir(extension.getOutputDir());
 
-            // Make sure the generateJextract task runs before compiling
+            // Make sure the jextract task runs before compiling
             p.getTasks().getByName(JavaPlugin.COMPILE_JAVA_TASK_NAME)
-                    .dependsOn(p.getTasks().getByName("generateJextract"));
+                    .dependsOn(p.getTasks().getByName("jextract"));
         });
     }
 }
