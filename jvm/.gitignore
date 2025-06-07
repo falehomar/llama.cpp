@@ -19,7 +19,7 @@ build/
 !**/src/test/**/build/
 
 
-
+!buildSrc/
 
 
 
