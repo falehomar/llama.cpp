@@ -49,6 +49,16 @@ The project consists of three main subprojects:
 
 ## Testing Information
 
+### Test-Driven Development (TDD)
+
+This project strictly follows Test-Driven Development (TDD) principles. All code contributions must adhere to the TDD workflow:
+
+1. **Write a failing test first** that defines the expected behavior
+2. **Write the minimal implementation** to make the test pass
+3. **Refactor** the code while ensuring tests continue to pass
+
+No new features or bug fixes should be implemented without corresponding tests written beforehand. Pull requests that don't follow this workflow will not be accepted.
+
 ### Running Tests
 
 Tests can be run using Gradle:
@@ -73,7 +83,7 @@ To run a specific test class:
 
 ### Writing Tests
 
-Tests are written using JUnit 5 (Jupiter) and Mockito. Here's an example test for the `SamplerParams` class:
+Tests are written using JUnit 5 (Jupiter) and Mockito. All tests should be written before implementing the actual functionality, following strict TDD principles. Here's an example test for the `SamplerParams` class:
 
 ```java
 package io.github.llama.api.sampling;
