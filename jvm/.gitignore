@@ -20,24 +20,8 @@ build/
 
 
 
-# Eclipse specific
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
 
-# NetBeans specific
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
+
 
 
 # Native library build artifacts
@@ -51,8 +35,7 @@ bin/
 # CMake build directories
 cmake-build-*/
 
-# Generated SWIG files
-generated/
+
 
 # OS specific
 .DS_Store
