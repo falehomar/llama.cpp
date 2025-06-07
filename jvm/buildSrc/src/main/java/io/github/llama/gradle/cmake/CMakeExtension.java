@@ -48,4 +48,9 @@ public abstract class CMakeExtension {
      * Number of parallel jobs for build (default: number of processors).
      */
     public abstract Property<Integer> getParallelJobs();
+
+    /**
+     * The directory where CMake will install the built artifacts.
+     */
+    public abstract DirectoryProperty getInstallDir();
 }

@@ -1,4 +1,4 @@
-package io.github.llama.gradle;
+package io.github.llama.gradle.jextract;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -31,6 +31,9 @@ public class JextractPlugin implements Plugin<Project> {
         Provider<Directory> defaultOutputDir = project.getLayout().getBuildDirectory().dir("generated/jextract");
         extension.getOutputDir().convention(defaultOutputDir);
 
+        // Default debug value is false
+        extension.getDebug().convention(false);
+
         // Register the task
         project.getTasks().register("generateJextract", JextractTask.class, task -> {
             task.getJextractPath().set(extension.getJextractPath());
@@ -45,6 +48,16 @@ public class JextractPlugin implements Plugin<Project> {
             task.getIncludeConstants().set(extension.getIncludeConstants());
             task.getIncludeVars().set(extension.getIncludeVars());
             task.getIncludeUnions().set(extension.getIncludeUnions());
+
+            // Configure new options
+            task.getSymbolsClassName().set(extension.getSymbolsClassName());
+            task.getDefineMacros().set(extension.getDefineMacros());
+            task.getDumpIncludesFile().set(extension.getDumpIncludesFile());
+            task.getLibraries().set(extension.getLibraries());
+            task.getUseSystemLoadLibrary().set(extension.getUseSystemLoadLibrary());
+            task.getFrameworkDirs().set(extension.getFrameworkDirs());
+            task.getFrameworks().set(extension.getFrameworks());
+            task.getDebug().set(extension.getDebug());
         });
 
         // Add the generated sources to the main source set

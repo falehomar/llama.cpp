@@ -32,6 +32,10 @@ public class CMakePlugin implements Plugin<Project> {
         // Default parallel jobs is number of processors
         extension.getParallelJobs().convention(Runtime.getRuntime().availableProcessors());
 
+        // Default install directory is build/install
+        Provider<Directory> defaultInstallDir = project.getLayout().getBuildDirectory().dir("install");
+        extension.getInstallDir().convention(defaultInstallDir);
+
         // Register the generate task
         project.getTasks().register("cmakeGenerate", CMakeGenerateTask.class, task -> {
             task.getCmakePath().set(extension.getCmakePath());
@@ -53,6 +57,18 @@ public class CMakePlugin implements Plugin<Project> {
 
             // Make sure generate runs before build
             task.dependsOn(project.getTasks().getByName("cmakeGenerate"));
+        });
+
+        // Register the install task
+        project.getTasks().register("cmakeInstall", CMakeInstallTask.class, task -> {
+            task.getCmakePath().set(extension.getCmakePath());
+            task.getBuildDir().set(extension.getBuildDir());
+            task.getInstallDir().set(extension.getInstallDir());
+            task.getArguments().set(extension.getArguments());
+            task.getConfiguration().set(extension.getBuildType());
+
+            // Make sure build runs before install
+            task.dependsOn(project.getTasks().getByName("cmakeBuild"));
         });
     }
 }

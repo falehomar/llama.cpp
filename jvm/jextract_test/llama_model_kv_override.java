@@ -39,7 +39,7 @@ public class llama_model_kv_override {
             llama_h.C_DOUBLE.withName("val_f64"),
             llama_h.C_BOOL.withName("val_bool"),
             MemoryLayout.sequenceLayout(128, llama_h.C_CHAR).withName("val_str")
-        ).withName("union (anonymous at /Users/e168693/TeamCompose/submodules/llama.cpp/include/llama.h:282:9)")
+        ).withName("union (anonymous at ./../../../llama.cpp/include/llama.h:282:9)")
     ).withName("llama_model_kv_override");
 
     /**

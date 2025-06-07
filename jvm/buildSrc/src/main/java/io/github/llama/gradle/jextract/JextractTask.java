@@ -1,19 +1,22 @@
-package io.github.llama.gradle;
+package io.github.llama.gradle.jextract;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.ListProperty;
+import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputDirectory;
+import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Task to run jextract and generate Java bindings for C header files.
@@ -100,6 +103,62 @@ public abstract class JextractTask extends DefaultTask {
     @Optional
     public abstract ListProperty<String> getIncludeUnions();
 
+    /**
+     * The symbols class name.
+     */
+    @Input
+    @Optional
+    public abstract Property<String> getSymbolsClassName();
+
+    /**
+     * Macro definitions (key-value pairs).
+     */
+    @Input
+    @Optional
+    public abstract MapProperty<String, String> getDefineMacros();
+
+    /**
+     * File to dump included symbols into.
+     */
+    @OutputFile
+    @Optional
+    public abstract RegularFileProperty getDumpIncludesFile();
+
+    /**
+     * Libraries to load.
+     */
+    @Input
+    @Optional
+    public abstract ListProperty<String> getLibraries();
+
+    /**
+     * Whether to use System.loadLibrary/System.load for loading libraries.
+     */
+    @Input
+    @Optional
+    public abstract Property<Boolean> getUseSystemLoadLibrary();
+
+    /**
+     * Framework directories (macOS only).
+     */
+    @Input
+    @Optional
+    public abstract ListProperty<String> getFrameworkDirs();
+
+    /**
+     * Frameworks to load (macOS only).
+     */
+    @Input
+    @Optional
+    public abstract ListProperty<String> getFrameworks();
+
+    /**
+     * Whether to print debug information regardless of the log level.
+     */
+    @Input
+    @Optional
+    public abstract Property<Boolean> getDebug();
+
     @TaskAction
     public void generate() {
         getLogger().info("Generating Java bindings using jextract");
@@ -118,6 +177,23 @@ public abstract class JextractTask extends DefaultTask {
         if (getHeaderClassName().isPresent()) {
             args.add("--header-class-name");
             args.add(getHeaderClassName().get());
+        }
+
+        // Add symbols class name if specified
+        if (getSymbolsClassName().isPresent()) {
+            args.add("--symbols-class-name");
+            args.add(getSymbolsClassName().get());
+        }
+
+        // Add dump includes file if specified
+        if (getDumpIncludesFile().isPresent()) {
+            args.add("--dump-includes");
+            args.add(getDumpIncludesFile().get().getAsFile().getAbsolutePath());
+        }
+
+        // Add use system load library if specified and true
+        if (getUseSystemLoadLibrary().isPresent() && getUseSystemLoadLibrary().get()) {
+            args.add("--use-system-load-library");
         }
 
         // Add include functions if specified
@@ -168,6 +244,43 @@ public abstract class JextractTask extends DefaultTask {
             }
         }
 
+        // Add define macros if specified
+        if (getDefineMacros().isPresent() && !getDefineMacros().get().isEmpty()) {
+            Map<String, String> macros = getDefineMacros().get();
+            for (Map.Entry<String, String> entry : macros.entrySet()) {
+                args.add("-D");
+                if (entry.getValue() == null || entry.getValue().isEmpty()) {
+                    args.add(entry.getKey());
+                } else {
+                    args.add(entry.getKey() + "=" + entry.getValue());
+                }
+            }
+        }
+
+        // Add libraries if specified
+        if (getLibraries().isPresent() && !getLibraries().get().isEmpty()) {
+            for (String library : getLibraries().get()) {
+                args.add("-l");
+                args.add(library);
+            }
+        }
+
+        // Add framework dirs if specified (macOS only)
+        if (getFrameworkDirs().isPresent() && !getFrameworkDirs().get().isEmpty()) {
+            for (String frameworkDir : getFrameworkDirs().get()) {
+                args.add("-F");
+                args.add(frameworkDir);
+            }
+        }
+
+        // Add frameworks if specified (macOS only)
+        if (getFrameworks().isPresent() && !getFrameworks().get().isEmpty()) {
+            for (String framework : getFrameworks().get()) {
+                args.add("--framework");
+                args.add(framework);
+            }
+        }
+
         // Add header file
         args.add(getHeaderFile().get().getAsFile().getAbsolutePath());
 
@@ -177,6 +290,22 @@ public abstract class JextractTask extends DefaultTask {
                 args.add("-I");
                 args.add(includePath);
             }
+        }
+
+        // Build the full command for logging
+        StringBuilder commandBuilder = new StringBuilder(getJextractPath().get());
+        for (String arg : args) {
+            commandBuilder.append(" ").append(arg);
+        }
+        String fullCommand = commandBuilder.toString();
+
+        // Log the command being executed
+        if (getDebug().isPresent() && getDebug().get()) {
+            // If debug is enabled, print the command regardless of log level
+            System.out.println("Executing jextract command: " + fullCommand);
+        } else {
+            // Otherwise, use the standard logger at lifecycle level
+            getLogger().lifecycle("Executing jextract command: {}", fullCommand);
         }
 
         // Execute jextract command

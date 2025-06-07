@@ -1,4 +1,4 @@
-package io.github.llama.gradle;
+package io.github.llama.gradle.jextract;
 
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.GradleRunner;

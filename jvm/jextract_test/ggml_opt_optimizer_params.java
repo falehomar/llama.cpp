@@ -30,7 +30,7 @@ public class ggml_opt_optimizer_params {
     }
 
     private static final GroupLayout $LAYOUT = MemoryLayout.structLayout(
-        ggml_opt_optimizer_params.struct (unnamed at /Users/e168693/TeamCompose/submodules/llama.cpp/ggml/include/ggml-opt.h:80:9).layout().withName("adamw")
+        ggml_opt_optimizer_params.struct (unnamed at ../../../llama.cpp/ggml/include/ggml-opt.h:80:9).layout().withName("adamw")
     ).withName("ggml_opt_optimizer_params");
 
     /**
@@ -51,9 +51,9 @@ public class ggml_opt_optimizer_params {
      * }
      * }
      */
-    public static class struct (unnamed at /Users/e168693/TeamCompose/submodules/llama.cpp/ggml/include/ggml-opt.h:80:9) {
+    public static class struct (unnamed at ../../../llama.cpp/ggml/include/ggml-opt.h:80:9) {
 
-        struct (unnamed at /Users/e168693/TeamCompose/submodules/llama.cpp/ggml/include/ggml-opt.h:80:9)() {
+        struct (unnamed at ../../../llama.cpp/ggml/include/ggml-opt.h:80:9)() {
             // Should not be called directly
         }
 
@@ -63,7 +63,7 @@ public class ggml_opt_optimizer_params {
             llama_h.C_FLOAT.withName("beta2"),
             llama_h.C_FLOAT.withName("eps"),
             llama_h.C_FLOAT.withName("wd")
-        ).withName("struct (unnamed at /Users/e168693/TeamCompose/submodules/llama.cpp/ggml/include/ggml-opt.h:80:9)");
+        ).withName("struct (unnamed at ../../../llama.cpp/ggml/include/ggml-opt.h:80:9)");
 
         /**
          * The layout of this struct
