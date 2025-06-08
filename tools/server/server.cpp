@@ -3789,14 +3789,6 @@ static void log_server_request(const httplib::Request & req, const httplib::Resp
 std::function<void(int)> shutdown_handler;
 std::atomic_flag is_terminating = ATOMIC_FLAG_INIT;
 
-/**
- * @brief Handle interrupt signals
- *
- * This function handles interrupt signals (like CTRL+C) and calls the shutdown handler.
- * It implements a double-interrupt behavior for emergency termination.
- *
- * @param signal The signal number received
- */
 inline void signal_handler(int signal) {
     if (is_terminating.test_and_set()) {
         // in case it hangs, we can force terminate the server by hitting Ctrl+C twice
@@ -3808,19 +3800,6 @@ inline void signal_handler(int signal) {
     shutdown_handler(signal);
 }
 
-//######################################################################################################
-//# MAIN FUNCTION
-//######################################################################################################
-
-/**
- * @brief Main entry point for the server
- *
- * Initializes the server, loads the model, and sets up HTTP endpoints.
- *
- * @param argc Number of command line arguments
- * @param argv Array of command line arguments
- * @return 0 on successful shutdown, non-zero on error
- */
 int main(int argc, char ** argv) {
     // own arguments required by this example
     common_params params;
