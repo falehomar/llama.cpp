@@ -2,9 +2,9 @@
 
 ## Task Matrix
 
-| ID | Task | Component | Priority | Estimated Effort | Status | Dependencies |
-|----|------|-----------|----------|-----------------|--------|--------------|
-| T1 | Define FFM Native Bindings | Native Integration | High | 3 days | In Progress | None |
+| ID | Task | Component | Priority | Estimated Effort | Status      | Dependencies |
+|----|------|-----------|----------|-----------------|-------------|--------------|
+| T1 | Define FFM Native Bindings | Native Integration | High | 3 days | Completed    | None |
 | T2 | Implement LLMFactory SPI | Core Infrastructure | High | 1 day | Not Started | None |
 | T3 | Implement Model Loading | Model Management | High | 3 days | Not Started | T1, T2 |
 | T4 | Implement Tokenizer | Tokenization | High | 2 days | Not Started | T1 |
@@ -17,6 +17,9 @@
 | T11 | Create Example Applications | Documentation | Low | 2 days | Not Started | T1-T10 |
 | T12 | Performance Optimization | Optimization | Low | 4 days | Not Started | T1-T11 |
 | T13 | Create GPU Support | Optimization | Low | 4 days | Not Started | T1-T8 |
+
+## General
+**You must make sure all tests pass not just the new tests.**
 
 ## Task Details
 
