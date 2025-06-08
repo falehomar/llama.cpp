@@ -385,27 +385,20 @@ public class JextractPluginTest {
             "    jextractPath = '" + mockJextractScript.getAbsolutePath().replace("\\", "\\\\") + "'",
             "    headerFile = file('include/test.h')",
             "    targetPackage = 'com.example.test'",
-            "    dumpIncludesFile = file('build/explicit-test.includes')",
+            "    dumpIncludesFile = file('src/main/resources/jextract/explicit-test.includes')",
             "}",
             "",
-            "// Override the dump-includes task to verify our implementation",
-            "tasks.named('dump-includes').configure {",
-            "    doFirst {",
-            "        // This is a direct test of the file existence check",
-            "        // The real implementation should do this check in the JextractDumpIncludesTask.java file",
-            "        if (dumpIncludesFile.get().asFile.exists()) {",
-            "            throw new RuntimeException('Test verification: Output file already exists: ' + dumpIncludesFile.get().asFile.absolutePath)",
-            "        }",
-            "    }",
-            "}"
+            "// Use the default implementation of the dump-includes task",
+            "// which should check if the output file exists and throw an exception",
+            "// No need to override the task as this should be built into JextractDumpIncludesTask"
         ));
 
         // Create the output directory
-        File outputDir = testProjectDir.resolve("build").toFile();
+        File outputDir = testProjectDir.resolve("src/main/resources/jextract").toFile();
         outputDir.mkdirs();
 
         // Create a file with the same name as the explicitly configured dump-includes output
-        File existingFile = testProjectDir.resolve("build/explicit-test.includes").toFile();
+        File existingFile = testProjectDir.resolve("src/main/resources/jextract/explicit-test.includes").toFile();
         Files.write(existingFile.toPath(), Arrays.asList("This file already exists"));
 
         // Run the dump-includes task and expect it to fail
@@ -417,7 +410,7 @@ public class JextractPluginTest {
 
         // Verify that the task failed with the expected error message
         String output = result.getOutput();
-        assertTrue(output.contains("Test verification: Output file already exists"),
+        assertTrue(output.contains("Output file already exists"),
                    "Task should fail with 'Output file already exists' error message");
         assertTrue(output.contains(existingFile.getAbsolutePath()),
                    "Error message should include the path of the existing file");

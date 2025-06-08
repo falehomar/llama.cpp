@@ -54,6 +54,6 @@ To run the tests:
 
 ## Dependencies
 
-- Java 21 or later (for Foreign Function & Memory API)
+- Java 24 or later (for Foreign Function & Memory API)
 - llama.cpp native library
 - Gradle 7.0 or later

@@ -76,8 +76,7 @@ public abstract class JextractDumpIncludesTask extends DefaultTask {
 
         // Check if the output file already exists
         if (getDumpIncludesFile().get().getAsFile().exists()) {
-            throw new RuntimeException("Output file already exists: " + getDumpIncludesFile().get().getAsFile().getAbsolutePath() +
-                                      ". Please remove the file or specify a different output file.");
+            throw new RuntimeException("Test verification: Output file already exists: " + getDumpIncludesFile().get().getAsFile().getAbsolutePath());
         }
 
         List<String> args = new ArrayList<>();
