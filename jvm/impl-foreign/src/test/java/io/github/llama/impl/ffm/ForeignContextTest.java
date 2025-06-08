@@ -7,7 +7,7 @@ import io.github.llama.api.context.Context;
 import io.github.llama.api.context.ContextParams;
 import io.github.llama.api.sampling.Sampler;
 import io.github.llama.api.sampling.SamplerParams;
-import io.github.llama.impl.llamacpp.ffm.llama_h;
+import io.github.llama.impl.llamacpp.ffm.LlamaCPP;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -25,7 +25,7 @@ public class ForeignContextTest {
     @BeforeAll
     public static void setUp() {
         // Initialize the backend before running any tests
-        llama_h.llama_backend_init();
+        LlamaCPP.llama_backend_init();
     }
 
     /**

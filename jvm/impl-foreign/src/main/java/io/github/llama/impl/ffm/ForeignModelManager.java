@@ -4,7 +4,7 @@ import io.github.llama.api.model.Model;
 import io.github.llama.api.model.ModelManager;
 import io.github.llama.api.model.ModelParams;
 import io.github.llama.api.model.QuantizeParams;
-import io.github.llama.impl.llamacpp.ffm.llama_h;
+import io.github.llama.impl.llamacpp.ffm.LlamaCPP;
 import io.github.llama.impl.llamacpp.ffm.llama_model_params;
 import io.github.llama.impl.llamacpp.ffm.llama_model_quantize_params;
 
@@ -41,7 +41,7 @@ public class ForeignModelManager implements ModelManager {
     public ModelParams getDefaultModelParams() {
         try (Arena arena = Arena.ofConfined()) {
             // Get default model parameters from native library
-            var nativeParams = llama_h.llama_model_default_params(arena);
+            var nativeParams = LlamaCPP.llama_model_default_params(arena);
 
             // Convert to Java ModelParams
             ModelParams params = new ModelParams();
@@ -67,7 +67,7 @@ public class ForeignModelManager implements ModelManager {
             var nativeParams = createNativeModelParams(params, arena);
 
             // Load the model
-            MemorySegment modelSegment = llama_h.llama_model_load_from_file(pathSegment, nativeParams);
+            MemorySegment modelSegment = LlamaCPP.llama_model_load_from_file(pathSegment, nativeParams);
 
             // Check if model loading failed
             if (modelSegment.equals(MemorySegment.NULL)) {
@@ -106,7 +106,7 @@ public class ForeignModelManager implements ModelManager {
             var nativeParams = createNativeModelParams(params, arena);
 
             // Load the model from splits
-            MemorySegment modelSegment = llama_h.llama_model_load_from_splits(pathsArray, modelPaths.size(), nativeParams);
+            MemorySegment modelSegment = LlamaCPP.llama_model_load_from_splits(pathsArray, modelPaths.size(), nativeParams);
 
             // Check if model loading failed
             if (modelSegment.equals(MemorySegment.NULL)) {
@@ -135,7 +135,7 @@ public class ForeignModelManager implements ModelManager {
             MemorySegment pathSegment = arena.allocateFrom(modelPath.toString(), StandardCharsets.UTF_8);
 
             // Save the model
-            llama_h.llama_model_save_to_file(foreignModel.getNativeModel(), pathSegment);
+            LlamaCPP.llama_model_save_to_file(foreignModel.getNativeModel(), pathSegment);
 
             // Note: In JDK 24, llama_model_save_to_file might return void instead of int
             // We can't check for errors in this case
@@ -162,7 +162,7 @@ public class ForeignModelManager implements ModelManager {
             nativeParams.setAtIndex(ValueLayout.JAVA_BYTE, 2 * ValueLayout.JAVA_INT.byteSize() + 2, params.isOnlyKeepDecoderLayers() ? (byte) 1 : (byte) 0);
 
             // Quantize the model
-            int result = llama_h.llama_model_quantize(inputPathSegment, outputPathSegment, nativeParams);
+            int result = LlamaCPP.llama_model_quantize(inputPathSegment, outputPathSegment, nativeParams);
 
             // Check if model quantization failed
             if (result != 0) {

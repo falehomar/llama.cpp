@@ -3,7 +3,7 @@ package io.github.llama.impl.ffm;
 import io.github.llama.api.model.Model;
 import io.github.llama.api.model.ModelInfo;
 import io.github.llama.api.tokenization.Tokenizer;
-import io.github.llama.impl.llamacpp.ffm.llama_h;
+import io.github.llama.impl.llamacpp.ffm.LlamaCPP;
 
 import java.lang.foreign.MemorySegment;
 
@@ -54,6 +54,6 @@ public class ForeignModel implements Model {
     @Override
     public void close() {
         // Free the model
-        llama_h.llama_model_free(nativeModel);
+        LlamaCPP.llama_model_free(nativeModel);
     }
 }

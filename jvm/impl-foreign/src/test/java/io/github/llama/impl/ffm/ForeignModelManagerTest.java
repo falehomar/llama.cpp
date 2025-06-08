@@ -6,7 +6,7 @@ import io.github.llama.api.model.ModelManager;
 import io.github.llama.api.model.ModelParams;
 import io.github.llama.api.model.QuantizeParams;
 import io.github.llama.api.tokenization.Tokenizer;
-import io.github.llama.impl.llamacpp.ffm.llama_h;
+import io.github.llama.impl.llamacpp.ffm.LlamaCPP;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -33,7 +33,7 @@ public class ForeignModelManagerTest {
     @BeforeAll
     public static void setUp() {
         // Initialize the backend before running any tests
-        llama_h.llama_backend_init();
+        LlamaCPP.llama_backend_init();
     }
 
     /**

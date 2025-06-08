@@ -1,7 +1,7 @@
 package io.github.llama.impl.ffm;
 
 import io.github.llama.api.BackendManager;
-import io.github.llama.impl.llamacpp.ffm.llama_h;
+import io.github.llama.impl.llamacpp.ffm.LlamaCPP;
 
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
@@ -29,52 +29,52 @@ public class ForeignBackendManager implements BackendManager {
 
     @Override
     public void initialize() {
-        llama_h.llama_backend_init();
+        LlamaCPP.llama_backend_init();
     }
 
     @Override
     public void cleanup() {
-        llama_h.llama_backend_free();
+        LlamaCPP.llama_backend_free();
     }
 
     @Override
     public void initializeNuma(int strategy) {
-        llama_h.llama_numa_init(strategy);
+        LlamaCPP.llama_numa_init(strategy);
     }
 
     @Override
     public long getTimeUs() {
-        return llama_h.llama_time_us();
+        return LlamaCPP.llama_time_us();
     }
 
     @Override
     public int getMaxDevices() {
-        return (int) llama_h.llama_max_devices();
+        return (int) LlamaCPP.llama_max_devices();
     }
 
     @Override
     public boolean supportsMmap() {
-        return llama_h.llama_supports_mmap();
+        return LlamaCPP.llama_supports_mmap();
     }
 
     @Override
     public boolean supportsMlock() {
-        return llama_h.llama_supports_mlock();
+        return LlamaCPP.llama_supports_mlock();
     }
 
     @Override
     public boolean supportsGpuOffload() {
-        return llama_h.llama_supports_gpu_offload();
+        return LlamaCPP.llama_supports_gpu_offload();
     }
 
     @Override
     public boolean supportsRpc() {
-        return llama_h.llama_supports_rpc();
+        return LlamaCPP.llama_supports_rpc();
     }
 
     @Override
     public String getSystemInfo() {
-        MemorySegment infoSegment = llama_h.llama_print_system_info();
+        MemorySegment infoSegment = LlamaCPP.llama_print_system_info();
         if (infoSegment == null || infoSegment.equals(MemorySegment.NULL)) {
             return "";
         }
@@ -110,6 +110,6 @@ public class ForeignBackendManager implements BackendManager {
         // For now, just set the callback to null
         // In a real implementation, we would need to create a native callback
         // that calls our Java callback
-        llama_h.llama_log_set(MemorySegment.NULL, MemorySegment.NULL);
+        LlamaCPP.llama_log_set(MemorySegment.NULL, MemorySegment.NULL);
     }
 }

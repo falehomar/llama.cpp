@@ -7,7 +7,7 @@ import io.github.llama.api.context.Context;
 import io.github.llama.api.context.ContextParams;
 import io.github.llama.api.sampling.Sampler;
 import io.github.llama.api.sampling.SamplerParams;
-import io.github.llama.impl.llamacpp.ffm.llama_h;
+import io.github.llama.impl.llamacpp.ffm.LlamaCPP;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -52,16 +52,16 @@ public class ForeignContext implements Context {
         // Create native context parameters
         try (Arena arena = Arena.ofConfined()) {
             // Get default context parameters
-            MemorySegment nativeParams = llama_h.llama_context_default_params();
+            MemorySegment nativeParams = LlamaCPP.llama_context_default_params();
 
             // Set context parameters
-            nativeParams.set(llama_h.C_INT, llama_h.llama_context_params.n_ctx$offset(), params.getContextSize());
-            nativeParams.set(llama_h.C_INT, llama_h.llama_context_params.n_batch$offset(), params.getBatchSize());
-            nativeParams.set(llama_h.C_INT, llama_h.llama_context_params.n_threads$offset(), params.getThreadCount());
-            nativeParams.set(llama_h.C_BOOL, llama_h.llama_context_params.logits_all$offset(), params.isLogitsAll());
+            nativeParams.set(LlamaCPP.C_INT, LlamaCPP.llama_context_params.n_ctx$offset(), params.getContextSize());
+            nativeParams.set(LlamaCPP.C_INT, LlamaCPP.llama_context_params.n_batch$offset(), params.getBatchSize());
+            nativeParams.set(LlamaCPP.C_INT, LlamaCPP.llama_context_params.n_threads$offset(), params.getThreadCount());
+            nativeParams.set(LlamaCPP.C_BOOL, LlamaCPP.llama_context_params.logits_all$offset(), params.isLogitsAll());
 
             // Create native context
-            this.nativeContext = llama_h.llama_init_from_model(nativeModel, nativeParams);
+            this.nativeContext = LlamaCPP.llama_init_from_model(nativeModel, nativeParams);
 
             // Check if context creation failed
             if (this.nativeContext.equals(MemorySegment.NULL)) {
@@ -106,7 +106,7 @@ public class ForeignContext implements Context {
         MemorySegment nativeBatch = foreignBatch.getNativeBatch();
 
         // Process batch
-        int result = llama_h.llama_decode(nativeContext, nativeBatch);
+        int result = LlamaCPP.llama_decode(nativeContext, nativeBatch);
 
         // Check if processing failed
         if (result != 0) {
@@ -120,7 +120,7 @@ public class ForeignContext implements Context {
     @Override
     public float[] getLogits() {
         // Get logits
-        MemorySegment logitsSegment = llama_h.llama_get_logits(nativeContext);
+        MemorySegment logitsSegment = LlamaCPP.llama_get_logits(nativeContext);
 
         // Check if logits retrieval failed
         if (logitsSegment.equals(MemorySegment.NULL)) {
@@ -128,7 +128,7 @@ public class ForeignContext implements Context {
         }
 
         // Get vocabulary size
-        int vocabSize = llama_h.llama_n_vocab(((ForeignModel) model).getNativeModel());
+        int vocabSize = LlamaCPP.llama_n_vocab(((ForeignModel) model).getNativeModel());
 
         // Copy logits to Java array
         float[] logits = new float[vocabSize];
@@ -151,7 +151,7 @@ public class ForeignContext implements Context {
     @Override
     public void close() {
         // Free the context
-        llama_h.llama_free(nativeContext);
+        LlamaCPP.llama_free(nativeContext);
     }
 
     /**
@@ -172,7 +172,7 @@ public class ForeignContext implements Context {
             this.tokenCount = 0;
 
             // Create native batch
-            this.nativeBatch = llama_h.llama_batch_init(maxTokens, 0, 1);
+            this.nativeBatch = LlamaCPP.llama_batch_init(maxTokens, 0, 1);
 
             // Check if batch creation failed
             if (this.nativeBatch.equals(MemorySegment.NULL)) {
@@ -196,7 +196,7 @@ public class ForeignContext implements Context {
             }
 
             // Add token to batch
-            llama_h.llama_batch_add(nativeBatch, tokenId, 0, new int[]{0}, false);
+            LlamaCPP.llama_batch_add(nativeBatch, tokenId, 0, new int[]{0}, false);
             tokenCount++;
 
             return this;
@@ -233,7 +233,7 @@ public class ForeignContext implements Context {
         @Override
         public Batch clear() {
             // Clear batch
-            llama_h.llama_batch_clear(nativeBatch);
+            LlamaCPP.llama_batch_clear(nativeBatch);
             tokenCount = 0;
 
             return this;
@@ -242,7 +242,7 @@ public class ForeignContext implements Context {
         @Override
         public void close() {
             // Free the batch
-            llama_h.llama_batch_free(nativeBatch);
+            LlamaCPP.llama_batch_free(nativeBatch);
         }
     }
 

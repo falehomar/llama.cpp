@@ -1,7 +1,7 @@
 package io.github.llama.impl.ffm;
 
 import io.github.llama.api.model.ModelInfo;
-import io.github.llama.impl.llamacpp.ffm.llama_h;
+import io.github.llama.impl.llamacpp.ffm.LlamaCPP;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -29,42 +29,42 @@ public class ForeignModelInfo implements ModelInfo {
 
     @Override
     public long getParameterCount() {
-        return llama_h.llama_model_n_params(nativeModel);
+        return LlamaCPP.llama_model_n_params(nativeModel);
     }
 
     @Override
     public int getContextSize() {
-        return llama_h.llama_model_n_ctx_train(nativeModel);
+        return LlamaCPP.llama_model_n_ctx_train(nativeModel);
     }
 
     @Override
     public int getEmbeddingSize() {
-        return llama_h.llama_model_n_embd(nativeModel);
+        return LlamaCPP.llama_model_n_embd(nativeModel);
     }
 
     @Override
     public int getLayerCount() {
-        return llama_h.llama_model_n_layer(nativeModel);
+        return LlamaCPP.llama_model_n_layer(nativeModel);
     }
 
     @Override
     public int getHeadCount() {
-        return llama_h.llama_model_n_head(nativeModel);
+        return LlamaCPP.llama_model_n_head(nativeModel);
     }
 
     @Override
     public int getKvHeadCount() {
-        return llama_h.llama_model_n_head_kv(nativeModel);
+        return LlamaCPP.llama_model_n_head_kv(nativeModel);
     }
 
     @Override
     public float getRopeFreqScaleTrain() {
-        return llama_h.llama_model_rope_freq_scale_train(nativeModel);
+        return LlamaCPP.llama_model_rope_freq_scale_train(nativeModel);
     }
 
     @Override
     public int getRopeType() {
-        return llama_h.llama_model_rope_type(nativeModel);
+        return LlamaCPP.llama_model_rope_type(nativeModel);
     }
 
     @Override
@@ -80,7 +80,7 @@ public class ForeignModelInfo implements ModelInfo {
             MemorySegment bufSegment = arena.allocate(bufSize);
 
             // Get metadata value
-            int result = llama_h.llama_model_meta_val_str(nativeModel, keySegment, bufSegment, bufSize);
+            int result = LlamaCPP.llama_model_meta_val_str(nativeModel, keySegment, bufSegment, bufSize);
 
             // Check if metadata was found
             if (result == 0) {
@@ -98,7 +98,7 @@ public class ForeignModelInfo implements ModelInfo {
 
         try (Arena arena = Arena.ofConfined()) {
             // Get metadata count
-            int count = llama_h.llama_model_meta_count(nativeModel);
+            int count = LlamaCPP.llama_model_meta_count(nativeModel);
 
             // Allocate buffer for the key
             int bufSize = 1024;
@@ -106,7 +106,7 @@ public class ForeignModelInfo implements ModelInfo {
 
             // Get all metadata keys
             for (int i = 0; i < count; i++) {
-                llama_h.llama_model_meta_key_by_index(nativeModel, i, bufSegment, bufSize);
+                LlamaCPP.llama_model_meta_key_by_index(nativeModel, i, bufSegment, bufSize);
                 keys.add(readCString(bufSegment));
             }
         }
@@ -122,7 +122,7 @@ public class ForeignModelInfo implements ModelInfo {
             MemorySegment bufSegment = arena.allocate(bufSize);
 
             // Get description
-            llama_h.llama_model_desc(nativeModel, bufSegment, bufSize);
+            LlamaCPP.llama_model_desc(nativeModel, bufSegment, bufSize);
 
             // Convert C string to Java string
             return readCString(bufSegment);
@@ -131,14 +131,14 @@ public class ForeignModelInfo implements ModelInfo {
 
     @Override
     public long getSize() {
-        return llama_h.llama_model_size(nativeModel);
+        return LlamaCPP.llama_model_size(nativeModel);
     }
 
     @Override
     public String getChatTemplate() {
         try (Arena arena = Arena.ofConfined()) {
             // Get chat template
-            MemorySegment templateSegment = llama_h.llama_model_chat_template(nativeModel, MemorySegment.NULL);
+            MemorySegment templateSegment = LlamaCPP.llama_model_chat_template(nativeModel, MemorySegment.NULL);
 
             // Check if template was found
             if (templateSegment.equals(MemorySegment.NULL)) {
@@ -174,21 +174,21 @@ public class ForeignModelInfo implements ModelInfo {
 
     @Override
     public boolean hasEncoder() {
-        return llama_h.llama_model_has_encoder(nativeModel);
+        return LlamaCPP.llama_model_has_encoder(nativeModel);
     }
 
     @Override
     public boolean hasDecoder() {
-        return llama_h.llama_model_has_decoder(nativeModel);
+        return LlamaCPP.llama_model_has_decoder(nativeModel);
     }
 
     @Override
     public int getDecoderStartToken() {
-        return llama_h.llama_model_decoder_start_token(nativeModel);
+        return LlamaCPP.llama_model_decoder_start_token(nativeModel);
     }
 
     @Override
     public boolean isRecurrent() {
-        return llama_h.llama_model_is_recurrent(nativeModel);
+        return LlamaCPP.llama_model_is_recurrent(nativeModel);
     }
 }
