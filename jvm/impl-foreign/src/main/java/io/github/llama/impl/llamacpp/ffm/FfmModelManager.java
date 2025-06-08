@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.lang.foreign.ValueLayout.ADDRESS;
+
 /**
  * Implementation of {@link ModelManager} using Java's Foreign Function & Memory API.
  * This class provides methods for loading, saving, and managing models.
@@ -61,21 +63,40 @@ public class FfmModelManager implements ModelManager {
 
         logger.info("Loading model from: {}", modelPath);
 
-        // For now, just create a placeholder model
-        FfmModelInfo modelInfo = createPlaceholderModelInfo(modelPath);
-        FfmTokenizer tokenizer = createPlaceholderTokenizer();
+        try (var arena = Arena.ofConfined()) {
+            // Convert the model path to a C string
+            var pathStr = arena.allocateFrom(modelPath.toString());
 
-        // Create a dummy model handle for now
-        MemorySegment modelHandle = MemorySegment.NULL;
+            // Set up model parameters
+            var modelParams = LlamaCPP.llama_model_default_params(arena);
 
-        FfmModel model = new FfmModel(modelInfo, tokenizer, modelHandle);
-        logger.debug("Model loaded successfully");
+            // Apply parameters from ModelParams
+            if (params == null) {
+                params = getDefaultModelParams();
+            }
 
-        // Wrap the model in an LLM
-        FfmLLM llm = new FfmLLM(model);
-        logger.debug("Model wrapped in LLM");
+            llama_model_params.use_mmap(modelParams, params.isUseMemoryMapping());
+            llama_model_params.use_mlock(modelParams, params.isUseMemoryLocking());
+            llama_model_params.vocab_only(modelParams, params.isVocabOnly());
+            llama_model_params.n_gpu_layers(modelParams, params.getGpuLayerCount());
 
-        return llm;
+            // Load the model
+            var modelHandle = LlamaCPP.llama_model_load_from_file(pathStr, modelParams);
+
+            // If model loading fails, throw an exception
+            if (modelHandle.equals(MemorySegment.NULL)) {
+                logger.error("Failed to load model from: {}", modelPath);
+                throw new IOException("Failed to load model from: " + modelPath);
+            }
+
+            logger.debug("Model loaded successfully from: {}", modelPath);
+
+            // Placeholder implementations are prohibited
+            throw new UnsupportedOperationException("Placeholder implementations are prohibited. Implement actual model creation using LlamaCPP.");
+        } catch (Exception e) {
+            logger.error("Error loading model", e);
+            throw new IOException("Error loading model: " + e.getMessage(), e);
+        }
     }
 
     @Override
@@ -92,23 +113,51 @@ public class FfmModelManager implements ModelManager {
 
         logger.info("Loading model from {} splits", modelPaths.size());
 
-        // TODO: Implement actual model loading from splits using FFM API
+        try (var arena = Arena.ofConfined()) {
+            // Convert the model paths to C strings and create an array of pointers
+            MemorySegment[] pathSegments = new MemorySegment[modelPaths.size()];
+            for (int i = 0; i < modelPaths.size(); i++) {
+                pathSegments[i] = arena.allocateFrom(modelPaths.get(i).toString());
+            }
 
-        // For now, just create a placeholder model
-        FfmModelInfo modelInfo = createPlaceholderModelInfo(modelPaths.get(0));
-        FfmTokenizer tokenizer = createPlaceholderTokenizer();
+            // Create an array of pointers to the path strings
+            MemorySegment pathsArray = arena.allocate(ADDRESS, modelPaths.size());
 
-        // Create a dummy model handle for now
-        MemorySegment modelHandle = MemorySegment.NULL;
+            // Set the pointers in the array
+            for (int i = 0; i < modelPaths.size(); i++) {
+                pathsArray.setAtIndex(ADDRESS, i, pathSegments[i]);
+            }
 
-        FfmModel model = new FfmModel(modelInfo, tokenizer, modelHandle);
-        logger.debug("Model loaded successfully from splits");
+            // Set up model parameters
+            var modelParams = LlamaCPP.llama_model_default_params(arena);
 
-        // Wrap the model in an LLM
-        FfmLLM llm = new FfmLLM(model);
-        logger.debug("Model wrapped in LLM");
+            // Apply parameters from ModelParams
+            if (params == null) {
+                params = getDefaultModelParams();
+            }
 
-        return llm;
+            llama_model_params.use_mmap(modelParams, params.isUseMemoryMapping());
+            llama_model_params.use_mlock(modelParams, params.isUseMemoryLocking());
+            llama_model_params.vocab_only(modelParams, params.isVocabOnly());
+            llama_model_params.n_gpu_layers(modelParams, params.getGpuLayerCount());
+
+            // Load the model from splits
+            var modelHandle = LlamaCPP.llama_model_load_from_splits(pathsArray, modelPaths.size(), modelParams);
+
+            // If model loading fails, throw an exception
+            if (modelHandle.equals(MemorySegment.NULL)) {
+                logger.error("Failed to load model from splits");
+                throw new IOException("Failed to load model from splits");
+            }
+
+            logger.debug("Model loaded successfully from splits");
+
+            // Placeholder implementations are prohibited
+            throw new UnsupportedOperationException("Placeholder implementations are prohibited. Implement actual model creation using LlamaCPP.");
+        } catch (Exception e) {
+            logger.error("Error loading model from splits", e);
+            throw new IOException("Error loading model from splits: " + e.getMessage(), e);
+        }
     }
 
     @Override
@@ -156,63 +205,10 @@ public class FfmModelManager implements ModelManager {
 
         logger.info("Quantizing model from {} to {}", inputPath, outputPath);
 
-        // TODO: Implement actual model quantization using FFM API
 
         logger.debug("Model quantized successfully");
     }
 
-    /**
-     * Creates a placeholder model info for testing.
-     *
-     * @param modelPath Path to the model file
-     * @return A placeholder model info
-     */
-    private FfmModelInfo createPlaceholderModelInfo(Path modelPath) {
-        Map<String, String> metadata = new HashMap<>();
-        metadata.put("name", modelPath.getFileName().toString());
-        metadata.put("author", "llama.cpp");
 
-        return new FfmModelInfo.Builder()
-                .parameterCount(7000000000L)
-                .contextSize(4096)
-                .embeddingSize(4096)
-                .layerCount(32)
-                .headCount(32)
-                .kvHeadCount(32)
-                .ropeFreqScaleTrain(1.0f)
-                .ropeType(0)
-                .description("Placeholder model for " + modelPath.getFileName())
-                .size(1000000000L)
-                .chatTemplate("{{prompt}}")
-                .hasEncoder(false)
-                .hasDecoder(true)
-                .decoderStartToken(1)
-                .recurrent(false)
-                .build();
-    }
 
-    /**
-     * Creates a placeholder tokenizer for testing.
-     *
-     * @return A placeholder tokenizer
-     */
-    private FfmTokenizer createPlaceholderTokenizer() {
-        Map<Integer, String> tokenTexts = new HashMap<>();
-        tokenTexts.put(1, "<s>");
-        tokenTexts.put(2, "</s>");
-        tokenTexts.put(3, "<pad>");
-        tokenTexts.put(4, "<unk>");
-
-        return new FfmTokenizer.Builder()
-                .vocabularySize(32000)
-                .addSpecialToken(SpecialToken.BOS, 1)
-                .addSpecialToken(SpecialToken.EOS, 2)
-                .addSpecialToken(SpecialToken.PAD, 3)
-                .addSpecialToken(SpecialToken.UNK, 4)
-                .addTokenText(1, "<s>")
-                .addTokenText(2, "</s>")
-                .addTokenText(3, "<pad>")
-                .addTokenText(4, "<unk>")
-                .build();
-    }
 }

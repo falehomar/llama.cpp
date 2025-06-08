@@ -17,15 +17,7 @@
 #include "chat.h"
 #include "utils.hpp"
 
-#include "arg.h"
-#include "common.h"
-#include "json-schema-to-grammar.h"
-#include "llama.h"
-#include "log.h"
-#include "sampling.h"
-#include "speculative.h"
-#include "mtmd.h"
-#include "mtmd-helper.h"
+#include "server_types.h"
 
 // mime type for sending response
 #define MIMETYPE_JSON "application/json; charset=utf-8"
@@ -62,90 +54,12 @@ using json = nlohmann::ordered_json;
  */
 constexpr int HTTP_POLLING_SECONDS = 1;
 
-/**
- * @brief Types of stopping conditions for text generation
- */
-enum stop_type {
-    STOP_TYPE_NONE,    /**< No stopping condition met */
-    STOP_TYPE_EOS,     /**< End of sequence token was generated */
-    STOP_TYPE_WORD,    /**< A specific word/token stopping condition was met */
-    STOP_TYPE_LIMIT,   /**< Token generation limit was reached */
-};
-
-// state diagram: https://github.com/ggml-org/llama.cpp/pull/9283
-/**
- * @brief States of a server processing slot
- *
- * Represents the different states a slot can be in during text generation.
- * See state diagram: https://github.com/ggml-org/llama.cpp/pull/9283
- */
-enum slot_state {
-    SLOT_STATE_IDLE,              /**< Slot is idle and available for new tasks */
-    SLOT_STATE_STARTED,           /**< Task has been started (initial setup) */ // TODO: this state is only used for setting up the initial prompt processing; maybe merge it with launch_slot_with_task in the future
-    SLOT_STATE_PROCESSING_PROMPT, /**< Slot is processing the input prompt */
-    SLOT_STATE_DONE_PROMPT,       /**< Prompt processing completed, ready for generation */
-    SLOT_STATE_GENERATING,        /**< Currently generating text tokens */
-};
-
-/**
- * @brief Current state of the server
- */
-enum server_state {
-    SERVER_STATE_LOADING_MODEL,  /**< Server is starting up, model not fully loaded yet */
-    SERVER_STATE_READY,          /**< Server is ready and model is loaded */
-};
-
-/**
- * @brief Types of tasks that can be executed by the server
- *
- * These task types define the different operations that the server can perform,
- * such as text completion, embedding generation, etc.
- */
-enum server_task_type {
-    SERVER_TASK_TYPE_COMPLETION,   /**< Generate text completion */
-    SERVER_TASK_TYPE_EMBEDDING,    /**< Generate embeddings for input text */
-    SERVER_TASK_TYPE_RERANK,       /**< Re-rank candidate responses */
-    SERVER_TASK_TYPE_INFILL,       /**< Fill in text based on context */
-    SERVER_TASK_TYPE_CANCEL,       /**< Cancel an ongoing task */
-    SERVER_TASK_TYPE_NEXT_RESPONSE,/**< Get the next response for an ongoing task */
-    SERVER_TASK_TYPE_METRICS,      /**< Get server metrics */
-    SERVER_TASK_TYPE_SLOT_SAVE,    /**< Save a slot's state to disk */
-    SERVER_TASK_TYPE_SLOT_RESTORE, /**< Restore a slot's state from disk */
-    SERVER_TASK_TYPE_SLOT_ERASE,   /**< Erase a slot's state */
-    SERVER_TASK_TYPE_SET_LORA,     /**< Configure LoRA adapters */
-};
-
-/**
- * @brief OpenAI API compatibility modes
- *
- * These modes determine the format of responses to match OpenAI API standards
- */
-enum oaicompat_type {
-    OAICOMPAT_TYPE_NONE,       /**< No OpenAI compatibility */
-    OAICOMPAT_TYPE_CHAT,       /**< ChatGPT-like completion */
-    OAICOMPAT_TYPE_COMPLETION, /**< Text completion */
-    OAICOMPAT_TYPE_EMBEDDING,  /**< Embedding generation */
-};
-
-// https://community.openai.com/t/openai-chat-list-of-error-codes-and-types/357791/11
-/**
- * @brief Error types for response messages
- *
- * These error types are used to categorize different kinds of failures
- * in the server's API responses
- */
-enum error_type {
-    ERROR_TYPE_INVALID_REQUEST, /**< Invalid request parameters */
-    ERROR_TYPE_AUTHENTICATION,  /**< Authentication failure */
-    ERROR_TYPE_SERVER,          /**< Internal server error */
-    ERROR_TYPE_NOT_FOUND,       /**< Resource not found */
-    ERROR_TYPE_PERMISSION,      /**< Permission denied */
-    ERROR_TYPE_UNAVAILABLE,     /**< Service unavailable (custom error) */
-    ERROR_TYPE_NOT_SUPPORTED,   /**< Feature not supported (custom error) */
-};
+//######################################################################################################
+//# END REGION: ENUMS AND FORWARD DECLARATIONS
+//######################################################################################################
 
 //######################################################################################################
-//# DATA STRUCTURES
+//# REGION: DATA STRUCTURES
 //######################################################################################################
 
 /**
@@ -1073,7 +987,7 @@ struct server_task_result_cmpl_partial : server_task_result {
             {"model",              oaicompat_model},
             {"system_fingerprint", build_info},
             {"object",             "text_completion"},
-            {"id",                 oaicompat_cmpl_id}
+            {"id", oaicompat_cmpl_id}
         };
 
         // extra fields for debugging purposes
@@ -2934,9 +2848,9 @@ struct server_context {
                     res->t_start             = metrics.t_start;
 
                     res->n_prompt_tokens_processed_total = metrics.n_prompt_tokens_processed_total;
-                    res->t_prompt_processing_total       = metrics.t_prompt_processing_total;
-                    res->n_tokens_predicted_total        = metrics.n_tokens_predicted_total;
                     res->t_tokens_generation_total       = metrics.t_tokens_generation_total;
+                    res->n_tokens_predicted_total        = metrics.n_tokens_predicted_total;
+                    res->t_prompt_processing_total       = metrics.t_prompt_processing_total;
 
                     res->n_prompt_tokens_processed = metrics.n_prompt_tokens_processed;
                     res->t_prompt_processing       = metrics.t_prompt_processing;
@@ -3120,8 +3034,7 @@ struct server_context {
                 }
 
                 if (mctx) {
-                    // we should never reach this because params_base.ctx_shift is automatically disabled if mmproj is loaded
-                    // we don't support ctx_shift because an image chunk may contains multiple tokens
+                    // we should never reach this, as speculative is automatically disabled if mmproj is loaded
                     GGML_ABORT("not supported by multimodal");
                 }
 
@@ -4572,7 +4485,7 @@ int main(int argc, char ** argv) {
             tokenized_prompts[0]
         );
 
-        std::vector<raw_buffer> files; // dummy
+        std::vector<raw_buffer> files; // dummy, unused
         handle_completions_impl(
             SERVER_TASK_TYPE_INFILL,
             data,

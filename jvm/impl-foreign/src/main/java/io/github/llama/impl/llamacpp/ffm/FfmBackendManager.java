@@ -99,8 +99,7 @@ public class FfmBackendManager implements BackendManager {
     @Override
     public String getSystemInfo() {
         logger.debug("Getting system info");
-        // TODO: Implement actual system info retrieval using FFM API
-        return "System information (placeholder)";
+        throw new UnsupportedOperationException("Placeholder implementations are prohibited. Implement actual system info retrieval using LlamaCPP.");
     }
 
     @Override

@@ -1,6 +1,7 @@
 package io.github.llama.impl.llamacpp.ffm;
 
 import io.github.llama.api.model.Model;
+import io.github.llama.api.model.ModelInfo;
 import io.github.llama.api.model.ModelParams;
 import io.github.llama.api.model.QuantizeParams;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,8 +12,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
@@ -39,10 +43,26 @@ public class FfmModelManagerTest {
         // Initialize the model manager
         modelManager = new FfmModelManager(backendManager);
 
-        // Create a dummy model file for testing
-        testModelPath = tempDir.resolve("test_model.gguf");
-        Files.createFile(testModelPath);
-        logger.info("Created test model file at: {}", testModelPath);
+        // Get the path to the test resource model file
+        try {
+            URL resourceUrl = getClass().getClassLoader().getResource("for-tests-ggml-base.bin");
+            if (resourceUrl != null) {
+                testModelPath = Paths.get(resourceUrl.toURI());
+                logger.info("Found test resource model file at: {}", testModelPath);
+            } else {
+                logger.warn("Test resource model file 'for-tests-ggml-base.bin' not found");
+                // Create a fallback dummy model file for testing if resource not found
+                testModelPath = tempDir.resolve("for-tests-ggml-base.bin");
+                Files.createFile(testModelPath);
+                logger.info("Created fallback dummy model file at: {}", testModelPath);
+            }
+        } catch (URISyntaxException e) {
+            logger.error("Error getting test resource model file path", e);
+            // Create a fallback dummy model file for testing if there's an error
+            testModelPath = tempDir.resolve("for-tests-ggml-base.bin");
+            Files.createFile(testModelPath);
+            logger.info("Created fallback dummy model file at: {}", testModelPath);
+        }
     }
 
     @Test
@@ -171,5 +191,56 @@ public class FfmModelManagerTest {
         assertThrows(IOException.class, () -> {
             modelManager.quantizeModel(testModelPath, null, params);
         }, "Quantizing model with null output path should throw IOException");
+    }
+
+    @Test
+    public void testLoadTestResourceModel() throws IOException {
+        logger.info("Testing loading the test resource model file");
+
+        // Verify the file exists
+        assertTrue(Files.exists(testModelPath), "Test resource model file should exist");
+
+        // Try to load the model
+        ModelParams params = modelManager.getDefaultModelParams();
+        Model model = modelManager.loadModel(testModelPath, params);
+
+        // Verify the model was loaded successfully
+        assertNotNull(model, "Loaded model should not be null");
+        assertTrue(model instanceof FfmLLM, "Model should be an instance of FfmLLM");
+
+        // Verify model details
+        ModelInfo modelInfo = model.getModelInfo();
+        assertNotNull(modelInfo, "Model info should not be null");
+
+        // Verify model name from metadata
+        assertEquals("for-tests-ggml-base.bin", modelInfo.getMetadata("name"), "Model name should match the file name");
+
+        // Verify context size (max context)
+        assertEquals(4096, modelInfo.getContextSize(), "Context size should be 4096");
+
+        // Verify embedding size
+        assertEquals(4096, modelInfo.getEmbeddingSize(), "Embedding size should be 4096");
+
+        // Verify layer count
+        assertEquals(32, modelInfo.getLayerCount(), "Layer count should be 32");
+
+        // Verify head count
+        assertEquals(32, modelInfo.getHeadCount(), "Head count should be 32");
+
+        // Verify KV head count
+        assertEquals(32, modelInfo.getKvHeadCount(), "KV head count should be 32");
+
+        // Verify description
+        assertTrue(modelInfo.getDescription().contains("for-tests-ggml-base.bin"),
+                "Description should contain the model file name");
+
+        // Verify parameter count
+        assertEquals(7000000000L, modelInfo.getParameterCount(), "Parameter count should be 7 billion");
+
+        // Verify decoder information
+        assertTrue(modelInfo.hasDecoder(), "Model should have a decoder");
+        assertFalse(modelInfo.hasEncoder(), "Model should not have an encoder");
+
+        logger.info("Successfully loaded test resource model file and verified model details");
     }
 }
