@@ -27,7 +27,7 @@ public class FfmBackendManager implements BackendManager {
     @Override
     public void initialize() {
         logger.info("Initializing llama.cpp backend");
-        LlamaCPP_1.llama_backend_init();
+        LlamaCPP.llama_backend_init();
         initialized = true;
         logger.debug("Backend initialized");
     }
@@ -35,7 +35,7 @@ public class FfmBackendManager implements BackendManager {
     @Override
     public void cleanup() {
         logger.info("Cleaning up llama.cpp backend");
-        LlamaCPP_1.llama_backend_free();
+        LlamaCPP.llama_backend_free();
         initialized = false;
         logger.debug("Backend cleaned up");
     }
@@ -43,44 +43,44 @@ public class FfmBackendManager implements BackendManager {
     @Override
     public void initializeNuma(int strategy) {
         logger.info("Initializing NUMA with strategy: {}", strategy);
-        LlamaCPP_1.llama_numa_init(strategy);
+        LlamaCPP.llama_numa_init(strategy);
         this.numaStrategy = strategy;
         logger.debug("NUMA initialized with strategy: {}", strategy);
     }
 
     @Override
     public long getTimeUs() {
-        return LlamaCPP_1.llama_time_us();
+        return LlamaCPP.llama_time_us();
     }
 
     @Override
     public int getMaxDevices() {
         logger.debug("Getting max devices");
-        return (int) LlamaCPP_1.llama_max_devices();
+        return (int) LlamaCPP.llama_max_devices();
     }
 
     @Override
     public boolean supportsMmap() {
         logger.debug("Checking if mmap is supported");
-        return LlamaCPP_1.llama_supports_mmap();
+        return LlamaCPP.llama_supports_mmap();
     }
 
     @Override
     public boolean supportsMlock() {
         logger.debug("Checking if mlock is supported");
-        return LlamaCPP_1.llama_supports_mlock();
+        return LlamaCPP.llama_supports_mlock();
     }
 
     @Override
     public boolean supportsGpuOffload() {
         logger.debug("Checking if GPU offload is supported");
-        return LlamaCPP_1.llama_supports_gpu_offload();
+        return LlamaCPP.llama_supports_gpu_offload();
     }
 
     @Override
     public boolean supportsRpc() {
         logger.debug("Checking if RPC is supported");
-        return LlamaCPP_1.llama_supports_rpc();
+        return LlamaCPP.llama_supports_rpc();
     }
 
     @Override
