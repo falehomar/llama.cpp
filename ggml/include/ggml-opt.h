@@ -77,7 +77,7 @@ extern "C" {
     // parameters that control which optimizer is used and how said optimizer tries to find the minimal loss
     struct ggml_opt_optimizer_params {
         // AdamW optimizer parameters
-        struct {
+        struct __adamw_params {
             float alpha; // learning rate
             float beta1;
             float beta2;
