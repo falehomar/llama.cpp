@@ -145,23 +145,23 @@ enum error_type {
 //######################################################################################################
 
 /**
- * @brief Parameters for a server slot
+ * @brief Parameters for controlling the behavior of a server slot
  *
- * Contains configuration options for text generation, such as
- * streaming behavior, context management, and timing controls.
+ * This structure defines configuration parameters for a slot's processing behavior,
+ * including text generation settings, sampling parameters, and other options.
  */
 struct slot_params {
-    bool stream        = true;  /**< Whether to stream responses token by token */
-    bool cache_prompt  = true;  /**< Remember the prompt to avoid reprocessing all prompt */
-    bool return_tokens = false; /**< Whether to include token IDs in the response */
+    bool stream        = true;      /**< Whether to stream partial results as they are generated */
+    bool cache_prompt  = true;      /**< Remember the prompt to avoid reprocessing all prompt tokens */
+    bool return_tokens = false;     /**< Include token IDs in the response */
 
-    int32_t n_keep    =  0;  /**< Number of tokens to keep from initial prompt */
-    int32_t n_discard =  0;  /**< Number of tokens after n_keep that may be discarded when shifting context, 0 defaults to half */
-    int32_t n_predict = -1;  /**< Number of new tokens to predict (-1 for unlimited) */
-    int32_t n_indent  =  0;  /**< Minimum line indentation for the generated text in number of whitespace characters */
+    int32_t n_keep    =  0; // number of tokens to keep from initial prompt
+    int32_t n_discard =  0; // number of tokens after n_keep that may be discarded when shifting context, 0 defaults to half
+    int32_t n_predict = -1; // new tokens to predict
+    int32_t n_indent  =  0; // mininum line indentation for the generated text in number of whitespace characters
 
-    int64_t t_max_prompt_ms  = -1; /**< Maximum time for prompt processing in milliseconds (TODO: implement) */
-    int64_t t_max_predict_ms = -1; /**< Maximum time for generation phase in milliseconds (if positive) */
+    int64_t t_max_prompt_ms  = -1; // TODO: implement
+    int64_t t_max_predict_ms = -1; // if positive, limit the generation phase to this time limit
 
     std::vector<common_adapter_lora_info> lora;
 
@@ -252,14 +252,21 @@ struct slot_params {
     }
 };
 
+/**
+ * @brief Represents a task to be processed by the server
+ *
+ * A task encapsulates all the information needed to process a specific request,
+ * including the task type, parameters, and any data required for processing.
+ * Different task types use different fields within this structure.
+ */
 struct server_task {
-    int id    = -1; // to be filled by server_queue
-    int index = -1; // used when there are multiple prompts (batch request)
+    int id    = -1; /**< Task identifier, to be filled by server_queue */
+    int index = -1; /**< Index used when there are multiple prompts in a batch request */
 
-    server_task_type type;
+    server_task_type type; /**< Type of task to be performed */
 
     // used by SERVER_TASK_TYPE_CANCEL
-    int id_target = -1;
+    int id_target = -1; /**< Target task ID for cancellation tasks */
 
     // used by SERVER_TASK_TYPE_INFERENCE
     slot_params   params;
@@ -267,10 +274,13 @@ struct server_task {
     int id_selected_slot = -1;
 
     // used by SERVER_TASK_TYPE_SLOT_SAVE, SERVER_TASK_TYPE_SLOT_RESTORE, SERVER_TASK_TYPE_SLOT_ERASE
+    /**
+     * @brief Information for slot save/restore/erase operations
+     */
     struct slot_action {
-        int slot_id;
-        std::string filename;
-        std::string filepath;
+        int slot_id;            /**< The ID of the slot to operate on */
+        std::string filename;   /**< Name of the file for save/restore operations */
+        std::string filepath;   /**< Full path to the file for save/restore operations */
     };
     slot_action slot_action;
 
@@ -594,21 +604,52 @@ struct result_timings {
     }
 };
 
+/**
+ * @brief Base class for all server task results
+ * 
+ * This abstract class serves as the foundation for all types of task results
+ * that can be returned by the server. It provides a common interface for
+ * serializing results to JSON and checking their status.
+ */
 struct server_task_result {
-    int id           = -1;
-    int id_slot      = -1;
+    int id           = -1;  /**< Task identifier this result belongs to */
+    int id_slot      = -1;  /**< Slot identifier that processed the task */
+    
+    /**
+     * @brief Check if the result represents an error
+     * @return true if this is an error result, false otherwise
+     */
     virtual bool is_error() {
         // only used by server_task_result_error
         return false;
     }
+    
+    /**
+     * @brief Check if the result indicates a completed or stopped task
+     * @return true if the task is stopped/completed, false otherwise
+     */
     virtual bool is_stop() {
         // only used by server_task_result_cmpl_*
         return false;
     }
+    
+    /**
+     * @brief Get the index for batch requests
+     * @return The index within a batch, or -1 if not applicable
+     */
     virtual int get_index() {
         return -1;
     }
+    
+    /**
+     * @brief Serialize the result to JSON format
+     * @return JSON object containing the result data
+     */
     virtual json to_json() = 0;
+    
+    /**
+     * @brief Virtual destructor for proper cleanup of derived classes
+     */
     virtual ~server_task_result() = default;
 };
 
@@ -624,17 +665,34 @@ inline std::string stop_type_to_str(stop_type type) {
     }
 }
 
+/**
+ * @brief Represents a generated token and its associated information
+ * 
+ * This structure contains all information related to a generated token,
+ * including its probability, text representation, and top alternative tokens.
+ */
 struct completion_token_output {
-    llama_token tok;
-    float prob;
-    std::string text_to_send;
+    llama_token tok;         /**< Token ID */
+    float prob;              /**< Token probability */
+    std::string text_to_send; /**< Text representation of the token */
+    
+    /**
+     * @brief Information about a token and its probability
+     * 
+     * Used for storing top alternative tokens and their probabilities
+     */
     struct prob_info {
-        llama_token tok;
-        std::string txt;
-        float prob;
+        llama_token tok;    /**< Token ID */
+        std::string txt;    /**< Text representation of the token */
+        float prob;         /**< Probability of the token */
     };
-    std::vector<prob_info> probs;
+    std::vector<prob_info> probs; /**< List of most probable alternative tokens */
 
+    /**
+     * @brief Convert token probability information to JSON
+     * @param post_sampling_probs Whether to use raw probabilities or log probabilities
+     * @return JSON object with token probability information
+     */
     json to_json(bool post_sampling_probs) const {
         json probs_for_token = json::array();
         for (const auto & p : probs) {
@@ -689,29 +747,36 @@ struct completion_token_output {
     }
 };
 
+/**
+ * @brief Final result for a text completion task
+ * 
+ * Contains the complete generated text and associated metadata for a 
+ * completed text generation task. This is returned when a generation
+ * task has finished.
+ */
 struct server_task_result_cmpl_final : server_task_result {
-    int index = 0;
+    int index = 0;               /**< Index for batch requests */
 
-    std::string content;
-    llama_tokens tokens;
+    std::string content;         /**< The generated text content */
+    llama_tokens tokens;         /**< List of token IDs that were generated */
 
-    bool stream;
-    result_timings timings;
-    std::string prompt;
+    bool stream;                 /**< Whether this result is part of a stream */
+    result_timings timings;      /**< Performance timing information */
+    std::string prompt;          /**< The input prompt that produced this result */
 
-    bool truncated;
-    int32_t n_decoded;
-    int32_t n_prompt_tokens;
-    int32_t n_tokens_cached;
-    bool has_new_line;
-    std::string stopping_word;
-    stop_type stop = STOP_TYPE_NONE;
+    bool truncated;              /**< Whether the result was truncated */
+    int32_t n_decoded;           /**< Number of tokens actually decoded */
+    int32_t n_prompt_tokens;     /**< Number of tokens in the prompt */
+    int32_t n_tokens_cached;     /**< Number of tokens that were cached */
+    bool has_new_line;           /**< Whether the generated text contains a newline */
+    std::string stopping_word;   /**< Word that triggered generation to stop, if any */
+    stop_type stop = STOP_TYPE_NONE; /**< Reason for stopping generation */
 
-    bool post_sampling_probs;
-    std::vector<completion_token_output> probs_output;
-    std::vector<std::string>  response_fields;
+    bool post_sampling_probs;    /**< Whether to include post-sampling probabilities */
+    std::vector<completion_token_output> probs_output; /**< Probability information for generated tokens */
+    std::vector<std::string> response_fields;          /**< Fields to include in response */
 
-    slot_params generation_params;
+    slot_params generation_params; /**< Parameters used for generation */
 
     // OAI-compat fields
     bool               verbose                  = false;
@@ -1279,61 +1344,68 @@ struct server_task_result_apply_lora : server_task_result {
     }
 };
 
+/**
+ * @brief Processing slot for handling server tasks
+ * 
+ * A slot represents a server resource that can process tasks. Each slot has
+ * its own context and can handle one task at a time, allowing the server to
+ * process multiple tasks concurrently.
+ */
 struct server_slot {
-    int id;
-    int id_task = -1;
+    int id;                    /**< Unique identifier for this slot */
+    int id_task = -1;          /**< ID of the task currently being processed (-1 if idle) */
 
     // only used for completion/embedding/infill/rerank
-    server_task_type task_type = SERVER_TASK_TYPE_COMPLETION;
+    server_task_type task_type = SERVER_TASK_TYPE_COMPLETION; /**< Type of task being processed */
 
-    llama_batch batch_spec = {};
+    llama_batch batch_spec = {}; /**< Batch specification for token processing */
 
-    llama_context * ctx = nullptr;
-    llama_context * ctx_dft = nullptr;
+    llama_context * ctx = nullptr;    /**< Main context for the language model */
+    llama_context * ctx_dft = nullptr; /**< Draft context for speculative decoding */
 
     // multimodal
-    mtmd_context * mctx = nullptr;
+    mtmd_context * mctx = nullptr; /**< Context for multimodal processing */
 
-    common_speculative * spec = nullptr;
+    common_speculative * spec = nullptr; /**< Speculative sampling data */
 
-    std::vector<common_adapter_lora_info> lora;
+    std::vector<common_adapter_lora_info> lora; /**< LoRA adapters loaded into this slot */
 
     // the index relative to completion multi-task request
-    size_t index = 0;
+    size_t index = 0;          /**< Index within a batch task */
 
-    struct slot_params params;
+    struct slot_params params; /**< Generation parameters for this slot */
 
-    slot_state state = SLOT_STATE_IDLE;
+    slot_state state = SLOT_STATE_IDLE; /**< Current processing state of this slot */
 
     // used to determine the slot that has been used the longest
-    int64_t t_last_used = -1;
+    int64_t t_last_used = -1; /**< Timestamp of last usage for LRU selection */
 
     // generation props
-    int32_t n_ctx       = 0;  // context size per slot
-    int32_t n_past      = 0;
-    int32_t n_decoded   = 0;
-    int32_t n_remaining = -1;
-    int32_t i_batch     = -1;
-    int32_t n_predict   = -1; // TODO: disambiguate from params.n_predict
+    int32_t n_ctx       = 0;  /**< Context size per slot */
+    int32_t n_past      = 0;  /**< Number of tokens in past context */
+    int32_t n_decoded   = 0;  /**< Number of tokens already decoded */
+    int32_t n_remaining = -1; /**< Number of tokens remaining to generate */
+    int32_t i_batch     = -1; /**< Current batch index being processed */
+    int32_t n_predict   = -1; /**< Number of tokens to predict, TODO: disambiguate from params.n_predict */
 
     // n_prompt_tokens may not be equal to prompt_tokens.size(), because prompt maybe truncated
-    int32_t n_prompt_tokens           = 0;
-    int32_t n_prompt_tokens_processed = 0;
+    int32_t n_prompt_tokens           = 0; /**< Total number of prompt tokens */
+    int32_t n_prompt_tokens_processed = 0; /**< Number of prompt tokens already processed */
 
     // input prompt tokens
-    server_tokens prompt_tokens;
+    server_tokens prompt_tokens; /**< Tokenized input prompt */
 
-    size_t last_nl_pos = 0;
+    size_t last_nl_pos = 0; /**< Position of last newline character */
 
-    std::string  generated_text;
-    llama_tokens generated_tokens;
-    common_chat_msg chat_msg;
+    std::string  generated_text;    /**< Text generated so far */
+    llama_tokens generated_tokens;  /**< Tokens generated so far */
+    common_chat_msg chat_msg;       /**< Chat message for this generation */
 
-    server_tokens cache_tokens;
+    server_tokens cache_tokens; /**< Cached tokens for prompt reuse */
 
-    std::vector<completion_token_output> generated_token_probs;
+    std::vector<completion_token_output> generated_token_probs; /**< Probabilities for generated tokens */
 
-    bool has_next_token = true;
+    bool has_next_token = true; /**< Whether there are more tokens to generate */
     bool has_new_line   = false;
     bool truncated      = false;
     stop_type stop;
