@@ -74,6 +74,12 @@ public abstract class JextractDumpIncludesTask extends DefaultTask {
     public void generate() {
         getLogger().info("Dumping symbols from header file using jextract");
 
+        // Check if the output file already exists
+        if (getDumpIncludesFile().get().getAsFile().exists()) {
+            throw new RuntimeException("Output file already exists: " + getDumpIncludesFile().get().getAsFile().getAbsolutePath() +
+                                      ". Please remove the file or specify a different output file.");
+        }
+
         List<String> args = new ArrayList<>();
 
         // Add dump includes file

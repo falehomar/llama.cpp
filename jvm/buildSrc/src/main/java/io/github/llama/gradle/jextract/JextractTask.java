@@ -168,6 +168,11 @@ public abstract class JextractTask extends DefaultTask {
 
         List<String> args = new ArrayList<>();
 
+        // Add debug flag if debug is enabled
+        if (getDebug().isPresent() && getDebug().get()) {
+            args.add("-Djextract.debug=true");
+        }
+
         // Check for args file in src/main/resources/jextract
         String headerFileName = getHeaderFile().get().getAsFile().getName();
         String baseName = headerFileName.contains(".")
