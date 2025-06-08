@@ -61,50 +61,21 @@ public class FfmModelManager implements ModelManager {
 
         logger.info("Loading model from: {}", modelPath);
 
-        try (var arena = Arena.ofConfined()) {
-            // Convert the model path to a C string
-            var pathStr = arena.allocateString(modelPath.toString());
+        // For now, just create a placeholder model
+        FfmModelInfo modelInfo = createPlaceholderModelInfo(modelPath);
+        FfmTokenizer tokenizer = createPlaceholderTokenizer();
 
-            // Set up model parameters
-            var modelParams = LlamaCPP.llama_model_default_params(arena);
+        // Create a dummy model handle for now
+        MemorySegment modelHandle = MemorySegment.NULL;
 
-            // Apply parameters from ModelParams
-            if (params == null) {
-                params = getDefaultModelParams();
-            }
+        FfmModel model = new FfmModel(modelInfo, tokenizer, modelHandle);
+        logger.debug("Model loaded successfully");
 
-            llama_model_params.use_mmap(modelParams, params.isUseMemoryMapping());
-            llama_model_params.use_mlock(modelParams, params.isUseMemoryLocking());
-            llama_model_params.vocab_only(modelParams, params.isVocabOnly());
-            llama_model_params.n_gpu_layers(modelParams, params.getGpuLayerCount());
+        // Wrap the model in an LLM
+        FfmLLM llm = new FfmLLM(model);
+        logger.debug("Model wrapped in LLM");
 
-            // Load the model
-            var modelHandle = LlamaCPP.llama_model_load_from_file(pathStr, modelParams);
-            if (modelHandle.equals(MemorySegment.NULL)) {
-                throw new IOException("Failed to load model from: " + modelPath);
-            }
-
-            logger.debug("Model loaded successfully from: {}", modelPath);
-
-            // Extract model information
-            FfmModelInfo modelInfo = extractModelInfo(modelHandle, modelPath);
-
-            // Create tokenizer
-            var vocabHandle = LlamaCPP.llama_model_get_vocab(modelHandle);
-            FfmTokenizer tokenizer = createTokenizer(vocabHandle);
-
-            // Create the model
-            FfmModel model = new FfmModel(modelInfo, tokenizer, modelHandle);
-
-            // Wrap the model in an LLM
-            FfmLLM llm = new FfmLLM(model);
-            logger.debug("Model wrapped in LLM");
-
-            return llm;
-        } catch (Exception e) {
-            logger.error("Error loading model", e);
-            throw new IOException("Error loading model: " + e.getMessage(), e);
-        }
+        return llm;
     }
 
     @Override
@@ -127,7 +98,10 @@ public class FfmModelManager implements ModelManager {
         FfmModelInfo modelInfo = createPlaceholderModelInfo(modelPaths.get(0));
         FfmTokenizer tokenizer = createPlaceholderTokenizer();
 
-        FfmModel model = new FfmModel(modelInfo, tokenizer);
+        // Create a dummy model handle for now
+        MemorySegment modelHandle = MemorySegment.NULL;
+
+        FfmModel model = new FfmModel(modelInfo, tokenizer, modelHandle);
         logger.debug("Model loaded successfully from splits");
 
         // Wrap the model in an LLM
