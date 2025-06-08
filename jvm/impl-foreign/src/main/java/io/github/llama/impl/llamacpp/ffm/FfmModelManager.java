@@ -9,6 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.lang.foreign.Arena;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.SegmentAllocator;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -58,20 +61,50 @@ public class FfmModelManager implements ModelManager {
 
         logger.info("Loading model from: {}", modelPath);
 
-        // TODO: Implement actual model loading using FFM API
+        try (var arena = Arena.ofConfined()) {
+            // Convert the model path to a C string
+            var pathStr = arena.allocateString(modelPath.toString());
 
-        // For now, just create a placeholder model
-        FfmModelInfo modelInfo = createPlaceholderModelInfo(modelPath);
-        FfmTokenizer tokenizer = createPlaceholderTokenizer();
+            // Set up model parameters
+            var modelParams = LlamaCPP.llama_model_default_params(arena);
 
-        FfmModel model = new FfmModel(modelInfo, tokenizer);
-        logger.debug("Model loaded successfully");
+            // Apply parameters from ModelParams
+            if (params == null) {
+                params = getDefaultModelParams();
+            }
 
-        // Wrap the model in an LLM
-        FfmLLM llm = new FfmLLM(model);
-        logger.debug("Model wrapped in LLM");
+            llama_model_params.use_mmap(modelParams, params.isUseMemoryMapping());
+            llama_model_params.use_mlock(modelParams, params.isUseMemoryLocking());
+            llama_model_params.vocab_only(modelParams, params.isVocabOnly());
+            llama_model_params.n_gpu_layers(modelParams, params.getGpuLayerCount());
 
-        return llm;
+            // Load the model
+            var modelHandle = LlamaCPP.llama_model_load_from_file(pathStr, modelParams);
+            if (modelHandle.equals(MemorySegment.NULL)) {
+                throw new IOException("Failed to load model from: " + modelPath);
+            }
+
+            logger.debug("Model loaded successfully from: {}", modelPath);
+
+            // Extract model information
+            FfmModelInfo modelInfo = extractModelInfo(modelHandle, modelPath);
+
+            // Create tokenizer
+            var vocabHandle = LlamaCPP.llama_model_get_vocab(modelHandle);
+            FfmTokenizer tokenizer = createTokenizer(vocabHandle);
+
+            // Create the model
+            FfmModel model = new FfmModel(modelInfo, tokenizer, modelHandle);
+
+            // Wrap the model in an LLM
+            FfmLLM llm = new FfmLLM(model);
+            logger.debug("Model wrapped in LLM");
+
+            return llm;
+        } catch (Exception e) {
+            logger.error("Error loading model", e);
+            throw new IOException("Error loading model: " + e.getMessage(), e);
+        }
     }
 
     @Override
