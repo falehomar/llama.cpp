@@ -14,6 +14,9 @@ import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -164,6 +167,22 @@ public abstract class JextractTask extends DefaultTask {
         getLogger().info("Generating Java bindings using jextract");
 
         List<String> args = new ArrayList<>();
+
+        // Check for args file in src/main/resources/jextract
+        String headerFileName = getHeaderFile().get().getAsFile().getName();
+        String baseName = headerFileName.contains(".")
+            ? headerFileName.substring(0, headerFileName.lastIndexOf('.'))
+            : headerFileName;
+        String argsFileName = baseName + ".includes";
+
+        Path argsFilePath = Paths.get(getProject().getProjectDir().getAbsolutePath(),
+            "src", "main", "resources", "jextract", argsFileName);
+
+        if (Files.exists(argsFilePath)) {
+            getLogger().info("Found args file: {}", argsFilePath);
+            // Add the args file to the command line using @argfile syntax
+            args.add("@" + argsFilePath.toString());
+        }
 
         // Add output directory
         args.add("--output");

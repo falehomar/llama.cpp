@@ -146,6 +146,19 @@ When using the dump file as an argument file, prefix it with `@` to tell jextrac
 
 If you don't specify a `dumpIncludesFile` in your build.gradle, the task will automatically generate a file in the build directory with a name derived from the header file. For example, if your header file is named `example.h`, the dump file will be `build/example.includes`.
 
+### Automatic Args File Support
+
+The jextract task automatically looks for an args file in the `src/main/resources/jextract` directory with a name derived from the header file. For example, if your header file is named `example.h`, the task will look for `src/main/resources/jextract/example.includes`.
+
+If this file exists, it will be passed to the jextract command using the `@argfile` syntax. This allows you to:
+
+1. Generate a dump of all symbols using the `dump-includes` task
+2. Edit the dump file to keep only the symbols you want
+3. Place the edited file in `src/main/resources/jextract` with the appropriate name
+4. Run the jextract task, which will automatically use the args file
+
+This workflow is particularly useful when you want to filter the symbols included in the generated bindings without having to specify them all in the build script.
+
 ## Testing
 
 The plugin includes comprehensive tests for all functionality, including the `dump-includes` task. The tests verify that:

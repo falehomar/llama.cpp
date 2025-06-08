@@ -302,4 +302,83 @@ public class JextractPluginTest {
         File classFile = testProjectDir.resolve("build/classes/java/main/com/example/test/TestHeader.class").toFile();
         assertTrue(classFile.exists(), "Generated Java file should be compiled");
     }
+
+    @Test
+    public void testArgsFileSupport() throws IOException {
+        // Create a mock jextract script that logs the arguments it receives
+        File mockJextractScript = testProjectDir.resolve("mock-jextract.sh").toFile();
+        Files.write(mockJextractScript.toPath(), Arrays.asList(
+            "#!/bin/sh",
+            "echo \"Mock jextract called with: $@\" > jextract-args.txt",
+            "# Find the output directory argument",
+            "OUTPUT_DIR=\"\"",
+            "for arg in \"$@\"; do",
+            "  if [ \"$prev_arg\" = \"--output\" ]; then",
+            "    OUTPUT_DIR=\"$arg\"",
+            "    break",
+            "  fi",
+            "  prev_arg=\"$arg\"",
+            "done",
+            "# Create output directory and a dummy Java file",
+            "if [ -n \"$OUTPUT_DIR\" ]; then",
+            "  mkdir -p \"$OUTPUT_DIR/com/example/test\"",
+            "  echo \"package com.example.test;\" > \"$OUTPUT_DIR/com/example/test/TestHeader.java\"",
+            "  echo \"public class TestHeader {}\" >> \"$OUTPUT_DIR/com/example/test/TestHeader.java\"",
+            "fi"
+        ));
+        mockJextractScript.setExecutable(true);
+
+        // Write build.gradle with plugin applied
+        Files.write(buildFile.toPath(), Arrays.asList(
+            "plugins {",
+            "    id 'java'",
+            "    id 'io.github.llama.jextract'",
+            "}",
+            "",
+            "jextract {",
+            "    jextractPath = '" + mockJextractScript.getAbsolutePath().replace("\\", "\\\\") + "'",
+            "    headerFile = file('include/test.h')",
+            "    targetPackage = 'com.example.test'",
+            "}"
+        ));
+
+        // Create src/main/resources/jextract directory
+        File resourcesDir = testProjectDir.resolve("src/main/resources/jextract").toFile();
+        resourcesDir.mkdirs();
+
+        // Create an args file with some test include directives
+        File argsFile = new File(resourcesDir, "test.includes");
+        Files.write(argsFile.toPath(), Arrays.asList(
+            "--include-function add",
+            "--include-struct Point",
+            "--include-constant MAX_POINTS"
+        ));
+
+        // Run the jextract task
+        BuildResult result = GradleRunner.create()
+            .withProjectDir(testProjectDir.toFile())
+            .withPluginClasspath()
+            .withArguments("jextract", "--stacktrace")
+            .build();
+
+        // Verify that the jextract task succeeds
+        assertEquals(TaskOutcome.SUCCESS, result.task(":jextract").getOutcome());
+
+        // Verify that the mock jextract script was called with the args file
+        File argsLogFile = testProjectDir.resolve("jextract-args.txt").toFile();
+        assertTrue(argsLogFile.exists(), "Arguments log file should be created");
+
+        String argsContent = Files.readString(argsLogFile.toPath());
+
+        // Debug logging
+        System.out.println("[DEBUG] Args file path: " + argsFile.getAbsolutePath());
+        System.out.println("[DEBUG] Args log content: " + argsContent);
+
+        // On macOS, /var is a symlink to /private/var, so the absolute path might have /private prepended to it
+        String argsFilePath = argsFile.getAbsolutePath();
+        String argsFilePathWithPrivate = "/private" + argsFilePath;
+
+        assertTrue(argsContent.contains("@" + argsFilePath) || argsContent.contains("@" + argsFilePathWithPrivate),
+                   "Args file should be included in command line arguments");
+    }
 }
