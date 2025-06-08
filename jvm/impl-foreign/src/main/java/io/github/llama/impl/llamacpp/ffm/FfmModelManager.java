@@ -67,7 +67,11 @@ public class FfmModelManager implements ModelManager {
         FfmModel model = new FfmModel(modelInfo, tokenizer);
         logger.debug("Model loaded successfully");
 
-        return model;
+        // Wrap the model in an LLM
+        FfmLLM llm = new FfmLLM(model);
+        logger.debug("Model wrapped in LLM");
+
+        return llm;
     }
 
     @Override

@@ -1,0 +1,23 @@
+micronaut:
+  application:
+    name: tokenization
+  server:
+    port: 8080
+    cors:
+      enabled: true
+  netty:
+    event-loops:
+      default:
+        num-threads: 8
+
+# Configure the path to the model for tokenization
+llama:
+  model:
+    # Replace with an actual path to a GGUF model
+    path: ${LLAMA_MODEL_PATH:/path/to/model.gguf}
+
+# Configure logging
+logger:
+  levels:
+    io.github.llama: INFO
+    io.micronaut: INFO

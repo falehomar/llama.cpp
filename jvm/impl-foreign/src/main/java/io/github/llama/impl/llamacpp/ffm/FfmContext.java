@@ -40,7 +40,8 @@ public class FfmContext implements Context {
     @Override
     public LLM getModel() {
         checkClosed();
-        return model;
+        // Return a new FfmLLM that wraps this model
+        return new FfmLLM(model);
     }
 
     @Override
