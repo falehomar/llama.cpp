@@ -353,14 +353,25 @@ kvCache.addSequence(0, 100, 150); // Add sequence 0, positions 100-150
 
 ## Server Integration
 
-The Server Integration tool allows you to integrate the Java API with a web server.
+The Server Integration tool allows you to integrate the Java API with a web server using Netty as the underlying HTTP server.
 
 ### Java Implementation
 
 ```java
 import io.github.llama.api.LLM;
-import io.github.llama.api.server.Server;
+import io.github.llama.api.server.NettyServer;
 import io.github.llama.api.server.ServerConfig;
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.stream.ChunkedWriteHandler;
 
 import java.net.InetSocketAddress;
 
@@ -374,9 +385,63 @@ ServerConfig config = new ServerConfig.Builder()
     .withCorsOrigin("*")
     .build();
 
-// Create and start the server
-Server server = new Server(llm, config);
+// Create and start the Netty-based server
+NettyServer server = new NettyServer(llm, config);
 server.start();
+
+// For more advanced Netty configuration, you can use the lower-level API
+public class LlamaNettyServer {
+    private final LLM llm;
+    private final ServerConfig config;
+    private EventLoopGroup bossGroup;
+    private EventLoopGroup workerGroup;
+
+    public LlamaNettyServer(LLM llm, ServerConfig config) {
+        this.llm = llm;
+        this.config = config;
+    }
+
+    public void start() throws Exception {
+        bossGroup = new NioEventLoopGroup(1);
+        workerGroup = new NioEventLoopGroup(config.getConcurrency());
+
+        try {
+            ServerBootstrap bootstrap = new ServerBootstrap();
+            bootstrap.group(bossGroup, workerGroup)
+                .channel(NioServerSocketChannel.class)
+                .childHandler(new ChannelInitializer<SocketChannel>() {
+                    @Override
+                    protected void initChannel(SocketChannel ch) throws Exception {
+                        ch.pipeline().addLast(
+                            new HttpServerCodec(),
+                            new HttpObjectAggregator(65536),
+                            new ChunkedWriteHandler(),
+                            new LlamaHttpHandler(llm, config)
+                        );
+                    }
+                })
+                .option(ChannelOption.SO_BACKLOG, 128)
+                .childOption(ChannelOption.SO_KEEPALIVE, true);
+
+            // Bind and start to accept incoming connections
+            ChannelFuture future = bootstrap.bind(config.getAddress()).sync();
+
+            // Wait until the server socket is closed
+            future.channel().closeFuture().sync();
+        } finally {
+            stop();
+        }
+    }
+
+    public void stop() {
+        if (bossGroup != null) {
+            bossGroup.shutdownGracefully();
+        }
+        if (workerGroup != null) {
+            workerGroup.shutdownGracefully();
+        }
+    }
+}
 
 // Stop the server when done
 server.stop();
@@ -386,15 +451,27 @@ server.stop();
 
 | C/C++ API Function | Java API Equivalent | Description |
 |-------------------|---------------------|-------------|
-| `server_context` | `Server` class | Server context |
+| `server_context` | `NettyServer` class | Server context using Netty |
 | `server_params` | `ServerConfig.Builder` | Server configuration parameters |
-| `server_init()` | `new Server(LLM, ServerConfig)` | Initialize a server |
-| `server_start()` | `Server.start()` | Start the server |
-| `server_stop()` | `Server.stop()` | Stop the server |
-| `server_running()` | `Server.isRunning()` | Check if the server is running |
-| `server_completion()` | `Server.completePrompt(String prompt, CompletionParams)` | Complete a prompt |
-| `server_chat()` | `Server.chat(List<ChatMessage>, ChatParams)` | Process a chat conversation |
-| `server_get_embeddings()` | `Server.getEmbeddings(String text, EmbeddingParams)` | Get embeddings for text |
+| `server_init()` | `new NettyServer(LLM, ServerConfig)` | Initialize a Netty-based server |
+| `server_start()` | `NettyServer.start()` | Start the Netty server |
+| `server_stop()` | `NettyServer.stop()` | Stop the Netty server |
+| `server_running()` | `NettyServer.isRunning()` | Check if the Netty server is running |
+| `server_completion()` | `NettyServer.completePrompt(String prompt, CompletionParams)` | Complete a prompt |
+| `server_chat()` | `NettyServer.chat(List<ChatMessage>, ChatParams)` | Process a chat conversation |
+| `server_get_embeddings()` | `NettyServer.getEmbeddings(String text, EmbeddingParams)` | Get embeddings for text |
+
+### Netty-specific API Mapping
+
+| Netty Component | Java API Equivalent | Description |
+|-------------------|---------------------|-------------|
+| `EventLoopGroup` | `NioEventLoopGroup` | Netty event loop for handling I/O operations |
+| `ServerBootstrap` | `ServerBootstrap` | Netty server bootstrap configuration |
+| `ChannelHandler` | `LlamaHttpHandler` | Custom HTTP handler for llama.cpp requests |
+| `ChannelPipeline` | `ch.pipeline()` | Pipeline for processing HTTP requests |
+| N/A | `HttpServerCodec` | HTTP request decoder and response encoder |
+| N/A | `HttpObjectAggregator` | Aggregates HTTP message fragments |
+| N/A | `ChunkedWriteHandler` | Writes chunked responses for streaming generation |
 
 ## Performance Benchmarking
 

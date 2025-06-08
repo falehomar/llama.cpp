@@ -2,4 +2,3 @@ rootProject.name = 'llama-java'
 
 include 'api'
 include 'impl-foreign'
-include 'cmake-plugin-test'
