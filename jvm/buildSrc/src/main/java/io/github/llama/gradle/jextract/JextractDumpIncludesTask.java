@@ -69,6 +69,7 @@ public abstract class JextractDumpIncludesTask extends DefaultTask {
     @Optional
     public abstract Property<Boolean> getDebug();
 
+
     @TaskAction
     public void generate() {
         getLogger().info("Dumping symbols from header file using jextract");
@@ -77,17 +78,6 @@ public abstract class JextractDumpIncludesTask extends DefaultTask {
 
         // Add dump includes file
         args.add("--dump-includes");
-
-        // If dumpIncludesFile is not specified, derive it from the header file name
-        if (!getDumpIncludesFile().isPresent()) {
-            String headerFileName = getHeaderFile().get().getAsFile().getName();
-            String baseName = headerFileName.contains(".")
-                ? headerFileName.substring(0, headerFileName.lastIndexOf('.'))
-                : headerFileName;
-            getDumpIncludesFile().set(getProject().getLayout().getBuildDirectory()
-                .file(baseName + ".includes"));
-        }
-
         args.add(getDumpIncludesFile().get().getAsFile().getAbsolutePath());
 
         // Add define macros if specified

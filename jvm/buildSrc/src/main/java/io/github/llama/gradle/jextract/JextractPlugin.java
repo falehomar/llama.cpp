@@ -71,10 +71,24 @@ public class JextractPlugin implements Plugin<Project> {
             task.getJextractPath().set(extension.getJextractPath());
             task.getHeaderFile().set(extension.getHeaderFile());
 
-            // Only set dumpIncludesFile if it's present in the extension
-            if (extension.getDumpIncludesFile().isPresent()) {
-                task.getDumpIncludesFile().set(extension.getDumpIncludesFile());
-            }
+            // Set a convention for dumpIncludesFile based on the header file name
+            // This will only be used if dumpIncludesFile is not explicitly set
+            task.getDumpIncludesFile().convention(
+                project.provider(() -> {
+                    if (extension.getDumpIncludesFile().isPresent()) {
+                        return extension.getDumpIncludesFile().get();
+                    } else if (extension.getHeaderFile().isPresent()) {
+                        String headerFileName = extension.getHeaderFile().get().getAsFile().getName();
+                        String baseName = headerFileName.contains(".")
+                            ? headerFileName.substring(0, headerFileName.lastIndexOf('.'))
+                            : headerFileName;
+                        return project.getLayout().getBuildDirectory()
+                            .file(baseName + ".includes").get();
+                    } else {
+                        return null;
+                    }
+                })
+            );
 
             task.getIncludePaths().set(extension.getIncludePaths());
             task.getDefineMacros().set(extension.getDefineMacros());

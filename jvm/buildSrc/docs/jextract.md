@@ -145,3 +145,13 @@ The dump file contains one symbol per line, with the symbol type and name. You c
 When using the dump file as an argument file, prefix it with `@` to tell jextract to read arguments from the file. This follows the standard JDK tools convention for argument files.
 
 If you don't specify a `dumpIncludesFile` in your build.gradle, the task will automatically generate a file in the build directory with a name derived from the header file. For example, if your header file is named `example.h`, the dump file will be `build/example.includes`.
+
+## Testing
+
+The plugin includes comprehensive tests for all functionality, including the `dump-includes` task. The tests verify that:
+
+1. The `dump-includes` task works correctly with a specified `dumpIncludesFile`
+2. The `dump-includes` task works correctly when `dumpIncludesFile` is not specified, deriving the file name from the header file
+3. The `dump-includes` task correctly handles include paths, macro definitions, and other options
+
+These tests ensure that the plugin behaves as expected and that changes to the code don't break existing functionality.
