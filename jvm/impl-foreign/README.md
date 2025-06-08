@@ -23,7 +23,7 @@ The implementation is being developed following Test-Driven Development (TDD) pr
 2. **Model Management** (Planned)
    - Loading and managing models
    - Model information and metadata
-   - Tokenization and vocabulary (Incomplete)
+   - Tokenization and vocabulary
 
 3. **Context Management** (Planned)
    - Creating and managing contexts for inference
