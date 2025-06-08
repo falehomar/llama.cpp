@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
  * Implementation of {@link LLM} using Java's Foreign Function & Memory API.
  * This class wraps a {@link FfmModel} and provides the LLM interface.
  */
-public class FfmLLM implements LLM {
+public class FfmLLM implements LLM, io.github.llama.api.model.Model {
 
     private static final Logger logger = LoggerFactory.getLogger(FfmLLM.class);
 

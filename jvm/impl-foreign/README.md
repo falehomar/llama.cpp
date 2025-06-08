@@ -25,11 +25,11 @@ The implementation is being developed following Test-Driven Development (TDD) pr
    - Model information and metadata ✓
    - Tokenization and vocabulary ✓
 
-3. **Context Management** (Planned)
-   - Creating and managing contexts for inference
-   - Context parameters and configuration
-   - Batch processing
-   - Sampling
+3. **Context Management** (Completed)
+   - Creating and managing contexts for inference ✓
+   - Context parameters and configuration ✓
+   - Batch processing ✓
+   - Sampling ✓
 
 4. **Advanced Features** (Planned)
    - Implementing advanced features like control vectors

@@ -1,21 +1,140 @@
-## Micronaut 4.7.3 Documentation
+# llama.cpp Java API - Tokenization Tool
 
-- [User Guide](https://docs.micronaut.io/4.7.3/guide/index.html)
-- [API Reference](https://docs.micronaut.io/4.7.3/api/index.html)
-- [Configuration Reference](https://docs.micronaut.io/4.7.3/guide/configurationreference.html)
-- [Micronaut Guides](https://guides.micronaut.io/index.html)
----
+This microservice provides a REST API for tokenizing and detokenizing text using the llama.cpp Java API.
 
-- [Shadow Gradle Plugin](https://plugins.gradle.org/plugin/com.github.johnrengelman.shadow)
-- [Micronaut Gradle Plugin documentation](https://micronaut-projects.github.io/micronaut-gradle-plugin/latest/)
-- [GraalVM Gradle Plugin documentation](https://graalvm.github.io/native-build-tools/latest/gradle-plugin.html)
-## Feature serialization-jackson documentation
+## Features
 
-- [Micronaut Serialization Jackson Core documentation](https://micronaut-projects.github.io/micronaut-serialization/latest/guide/)
+- Tokenize text to token IDs
+- Detokenize token IDs back to text
+- Get tokenizer information (vocabulary size, special tokens)
+- OpenAPI/Swagger documentation
 
+## Technologies
 
-## Feature micronaut-aot documentation
+- Java 21
+- Micronaut 4.8.2
+- Netty for high-performance async I/O
+- llama.cpp Java API
 
-- [Micronaut AOT documentation](https://micronaut-projects.github.io/micronaut-aot/latest/guide/)
+## Prerequisites
+
+- Java 21 or higher
+- A GGUF model file for tokenization
+
+## Configuration
+
+Edit the `application.yml` file to configure the tool:
+
+```yaml
+llama:
+  model:
+    path: /path/to/your/model.gguf
+```
+
+You can also set the model path using an environment variable:
+
+```bash
+export LLAMA_MODEL_PATH=/path/to/your/model.gguf
+```
+
+## Building
+
+```bash
+./gradlew build
+```
+
+## Running
+
+```bash
+./gradlew run
+```
+
+Or run the built JAR:
+
+```bash
+java -jar build/libs/tokenization-0.1-all.jar
+```
+
+## API Endpoints
+
+### Tokenize Text
+
+```
+POST /api/tokenize
+```
+
+Request body:
+```json
+{
+  "text": "Hello, world!",
+  "addBos": true,
+  "addEos": false
+}
+```
+
+Response:
+```json
+{
+  "tokenIds": [1, 15043, 29889, 29991, 2]
+}
+```
+
+### Detokenize
+
+```
+POST /api/tokenize/detokenize
+```
+
+Request body:
+```json
+{
+  "tokenIds": [1, 15043, 29889, 29991, 2]
+}
+```
+
+Response:
+```json
+{
+  "text": "Hello, world!"
+}
+```
+
+### Tokenizer Info
+
+```
+GET /api/tokenize/info
+```
+
+Response:
+```json
+{
+  "vocabularySize": 32000,
+  "bosToken": 1,
+  "eosToken": 2
+}
+```
+
+## API Documentation
+
+When the application is running, access the Swagger UI at:
+
+```
+http://localhost:8080/swagger-ui
+```
+
+## Test-Driven Development (TDD)
+
+This project follows strict TDD principles:
+
+1. Write a test that defines desired functionality
+2. Run the test and watch it fail
+3. Write minimal code to make the test pass
+4. Run the test and watch it pass
+5. Refactor code as necessary
+6. Repeat
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 

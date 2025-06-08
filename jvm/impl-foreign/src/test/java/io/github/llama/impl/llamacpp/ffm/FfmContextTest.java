@@ -31,6 +31,19 @@ public class FfmContextTest {
         // Create a mock model
         mockModel = Mockito.mock(FfmModel.class);
 
+        // Create a mock model info
+        FfmModelInfo mockModelInfo = Mockito.mock(FfmModelInfo.class);
+        Mockito.when(mockModelInfo.getDescription()).thenReturn("Mock model for testing");
+
+        // Set up the mock model to return the mock model info
+        Mockito.when(mockModel.getModelInfo()).thenReturn(mockModelInfo);
+
+        // Create a mock tokenizer
+        FfmTokenizer mockTokenizer = Mockito.mock(FfmTokenizer.class);
+
+        // Set up the mock model to return the mock tokenizer
+        Mockito.when(mockModel.getTokenizer()).thenReturn(mockTokenizer);
+
         // Create context parameters
         contextParams = ContextParams.builder()
                 .contextSize(2048)
@@ -51,7 +64,12 @@ public class FfmContextTest {
         logger.info("Testing getModel");
 
         LLM model = context.getModel();
-        assertSame(mockModel, model, "Model should be the same as the one passed to the constructor");
+        assertNotNull(model, "Model should not be null");
+        assertTrue(model instanceof FfmLLM, "Model should be an instance of FfmLLM");
+
+        // Get the wrapped model from the FfmLLM
+        FfmModel wrappedModel = ((FfmLLM) model).getWrappedModel();
+        assertSame(mockModel, wrappedModel, "Wrapped model should be the same as the one passed to the constructor");
     }
 
     @Test

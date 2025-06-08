@@ -97,7 +97,11 @@ public class FfmModelManager implements ModelManager {
         FfmModel model = new FfmModel(modelInfo, tokenizer);
         logger.debug("Model loaded successfully from splits");
 
-        return model;
+        // Wrap the model in an LLM
+        FfmLLM llm = new FfmLLM(model);
+        logger.debug("Model wrapped in LLM");
+
+        return llm;
     }
 
     @Override
@@ -110,8 +114,16 @@ public class FfmModelManager implements ModelManager {
             throw new IOException("Model path cannot be null");
         }
 
-        if (!(model instanceof FfmModel)) {
-            throw new IOException("Model must be an instance of FfmModel");
+        if (!(model instanceof FfmModel) && !(model instanceof FfmLLM)) {
+            throw new IOException("Model must be an instance of FfmModel or FfmLLM");
+        }
+
+        // If the model is an FfmLLM, get the wrapped FfmModel
+        FfmModel ffmModel;
+        if (model instanceof FfmLLM) {
+            ffmModel = ((FfmLLM) model).getWrappedModel();
+        } else {
+            ffmModel = (FfmModel) model;
         }
 
         logger.info("Saving model to: {}", modelPath);
