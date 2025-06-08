@@ -27,7 +27,7 @@ public class FfmBackendManager implements BackendManager {
     @Override
     public void initialize() {
         logger.info("Initializing llama.cpp backend");
-        // TODO: Implement actual initialization using FFM API
+        LlamaCPP_1.llama_backend_init();
         initialized = true;
         logger.debug("Backend initialized");
     }
@@ -35,7 +35,7 @@ public class FfmBackendManager implements BackendManager {
     @Override
     public void cleanup() {
         logger.info("Cleaning up llama.cpp backend");
-        // TODO: Implement actual cleanup using FFM API
+        LlamaCPP_1.llama_backend_free();
         initialized = false;
         logger.debug("Backend cleaned up");
     }
@@ -43,50 +43,44 @@ public class FfmBackendManager implements BackendManager {
     @Override
     public void initializeNuma(int strategy) {
         logger.info("Initializing NUMA with strategy: {}", strategy);
-        // TODO: Implement actual NUMA initialization using FFM API
+        LlamaCPP_1.llama_numa_init(strategy);
         this.numaStrategy = strategy;
         logger.debug("NUMA initialized with strategy: {}", strategy);
     }
 
     @Override
     public long getTimeUs() {
-        // TODO: Implement actual time retrieval using FFM API
-        return System.nanoTime() / 1000; // Convert nanoseconds to microseconds
+        return LlamaCPP_1.llama_time_us();
     }
 
     @Override
     public int getMaxDevices() {
         logger.debug("Getting max devices");
-        // TODO: Implement actual device count retrieval using FFM API
-        return 1; // Default to 1 for now
+        return (int) LlamaCPP_1.llama_max_devices();
     }
 
     @Override
     public boolean supportsMmap() {
         logger.debug("Checking if mmap is supported");
-        // TODO: Implement actual mmap support check using FFM API
-        return true; // Default to true for now
+        return LlamaCPP_1.llama_supports_mmap();
     }
 
     @Override
     public boolean supportsMlock() {
         logger.debug("Checking if mlock is supported");
-        // TODO: Implement actual mlock support check using FFM API
-        return true; // Default to true for now
+        return LlamaCPP_1.llama_supports_mlock();
     }
 
     @Override
     public boolean supportsGpuOffload() {
         logger.debug("Checking if GPU offload is supported");
-        // TODO: Implement actual GPU offload support check using FFM API
-        return false; // Default to false for now
+        return LlamaCPP_1.llama_supports_gpu_offload();
     }
 
     @Override
     public boolean supportsRpc() {
         logger.debug("Checking if RPC is supported");
-        // TODO: Implement actual RPC support check using FFM API
-        return false; // Default to false for now
+        return LlamaCPP_1.llama_supports_rpc();
     }
 
     @Override

@@ -65,7 +65,7 @@ public class FfmModelManagerTest {
         Model model = modelManager.loadModel(testModelPath, params);
 
         assertNotNull(model, "Loaded model should not be null");
-        assertTrue(model instanceof FfmModel, "Model should be an instance of FfmModel");
+        assertTrue(model instanceof FfmLLM, "Model should be an instance of FfmLLM");
     }
 
     @Test
@@ -94,7 +94,7 @@ public class FfmModelManagerTest {
         Model model = modelManager.loadModelFromSplits(modelPaths, params);
 
         assertNotNull(model, "Loaded model should not be null");
-        assertTrue(model instanceof FfmModel, "Model should be an instance of FfmModel");
+        assertTrue(model instanceof FfmLLM, "Model should be an instance of FfmLLM");
     }
 
     @Test
