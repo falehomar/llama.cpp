@@ -45,7 +45,7 @@ public class FfmModelManagerTest {
 
         // Get the path to the test resource model file
         try {
-            URL resourceUrl = getClass().getClassLoader().getResource("for-tests-ggml-base.bin");
+            URL resourceUrl = getClass().getClassLoader().getResource("models/for-tests-ggml-base.bin");
             if (resourceUrl != null) {
                 testModelPath = Paths.get(resourceUrl.toURI());
                 logger.info("Found test resource model file at: {}", testModelPath);

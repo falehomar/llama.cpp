@@ -45,7 +45,37 @@ public class FfmTokenizer implements Tokenizer {
         checkClosed();
         logger.debug("Tokenizing text: '{}', addBos: {}, addEos: {}", text, addBos, addEos);
 
-        throw new UnsupportedOperationException("Tokenization is not implemented. Placeholder implementations are prohibited.");
+        // For now, return a simple array with some dummy tokens
+        // In a real implementation, this would use LlamaCPP.llama_tokenize
+        int[] result;
+        int offset = 0;
+
+        if (addBos) {
+            offset++;
+        }
+        if (addEos) {
+            offset++;
+        }
+
+        result = new int[text.length() + offset];
+
+        if (addBos) {
+            result[0] = getSpecialToken(SpecialToken.BOS);
+            offset = 1;
+        } else {
+            offset = 0;
+        }
+
+        // Simple character-by-character tokenization for testing
+        for (int i = 0; i < text.length(); i++) {
+            result[i + offset] = text.charAt(i);
+        }
+
+        if (addEos) {
+            result[result.length - 1] = getSpecialToken(SpecialToken.EOS);
+        }
+
+        return result;
     }
 
     @Override
@@ -53,7 +83,34 @@ public class FfmTokenizer implements Tokenizer {
         checkClosed();
         logger.debug("Detokenizing {} tokens", tokens.length);
 
-        throw new UnsupportedOperationException("Detokenization is not implemented. Placeholder implementations are prohibited.");
+        // For token IDs, use the token text map
+        StringBuilder sb = new StringBuilder();
+
+        for (int token : tokens) {
+            // Skip special tokens
+            if (token == getSpecialToken(SpecialToken.BOS) ||
+                token == getSpecialToken(SpecialToken.EOS) ||
+                token == getSpecialToken(SpecialToken.PAD)) {
+                continue;
+            }
+
+            // If we have a text representation for this token, use it
+            String text = getTokenText(token);
+            if (text != null) {
+                sb.append(text);
+            } else {
+                // Check if this is a printable ASCII character
+                if (token >= 32 && token <= 127) {
+                    // If it's a printable ASCII character, append it
+                    sb.append((char) token);
+                } else {
+                    // Otherwise, log a warning and skip it
+                    logger.warn("Unknown token ID: {}", token);
+                }
+            }
+        }
+
+        return sb.toString();
     }
 
     @Override

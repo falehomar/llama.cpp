@@ -4,6 +4,9 @@ import io.github.llama.api.BackendManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.ValueLayout;
+
 /**
  * Implementation of {@link BackendManager} using Java's Foreign Function & Memory API.
  * This class provides access to the llama.cpp backend functionality.
@@ -99,7 +102,25 @@ public class FfmBackendManager implements BackendManager {
     @Override
     public String getSystemInfo() {
         logger.debug("Getting system info");
-        throw new UnsupportedOperationException("Placeholder implementations are prohibited. Implement actual system info retrieval using LlamaCPP.");
+
+        // Get system info from LlamaCPP
+        MemorySegment infoPtr = LlamaCPP.llama_print_system_info();
+
+        // Convert the C string to a Java string
+        if (infoPtr.equals(MemorySegment.NULL)) {
+            return "System information not available";
+        }
+
+        // Read the C string until null terminator
+        StringBuilder sb = new StringBuilder();
+        byte b;
+        long offset = 0;
+        while ((b = infoPtr.get(ValueLayout.JAVA_BYTE, offset)) != 0) {
+            sb.append((char) b);
+            offset++;
+        }
+
+        return sb.toString();
     }
 
     @Override
