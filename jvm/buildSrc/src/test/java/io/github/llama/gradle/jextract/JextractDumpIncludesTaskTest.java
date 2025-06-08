@@ -76,9 +76,7 @@ public class JextractDumpIncludesTaskTest {
         Files.write(dumpIncludesFile.toPath(), Arrays.asList("This file already exists"));
 
         // Verify that the task throws an exception when executed
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            task.generate();
-        });
+        RuntimeException exception = assertThrows(RuntimeException.class, task::generate);
 
         // Verify the exception message
         String message = exception.getMessage();
@@ -101,8 +99,6 @@ public class JextractDumpIncludesTaskTest {
         // Verify that the task does not throw an exception when executed
         // Note: This will not actually run the jextract command, but it will verify that
         // the file existence check passes when the file does not exist
-        assertDoesNotThrow(() -> {
-            task.generate();
-        });
+        assertDoesNotThrow(task::generate);
     }
 }
