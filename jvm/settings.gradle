@@ -2,3 +2,6 @@ rootProject.name = 'llama-java'
 
 include 'api'
 include 'impl-foreign'
+
+// Include tools directory
+includeBuild 'tools'
