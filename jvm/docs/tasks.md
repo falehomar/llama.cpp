@@ -4,7 +4,7 @@
 
 | ID | Task | Component | Priority | Estimated Effort | Status | Dependencies |
 |----|------|-----------|----------|-----------------|--------|--------------|
-| T1 | Define FFM Native Bindings | Native Integration | High | 3 days | Not Started | None |
+| T1 | Define FFM Native Bindings | Native Integration | High | 3 days | In Progress | None |
 | T2 | Implement LLMFactory SPI | Core Infrastructure | High | 1 day | Not Started | None |
 | T3 | Implement Model Loading | Model Management | High | 3 days | Not Started | T1, T2 |
 | T4 | Implement Tokenizer | Tokenization | High | 2 days | Not Started | T1 |

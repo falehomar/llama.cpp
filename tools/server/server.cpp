@@ -1,3 +1,19 @@
+/**
+ * @file server.cpp
+ * @brief HTTP server implementation for the llama.cpp model.
+ *
+ * This file implements a high-performance HTTP server for serving llama.cpp models.
+ * It provides endpoints for text completion, embedding generation, chat, and other
+ * LLM-related functionalities. The server supports multiple concurrent connections,
+ * request batching, and OpenAI-compatible API endpoints.
+ *
+ * @author The llama.cpp team
+ */
+
+//######################################################################################################
+//# INCLUDES AND CONSTANTS
+//######################################################################################################
+
 #include "chat.h"
 #include "utils.hpp"
 
@@ -33,73 +49,119 @@
 
 using json = nlohmann::ordered_json;
 
+//######################################################################################################
+//# ENUMS AND FORWARD DECLARATIONS
+//######################################################################################################
+
+/**
+ * @brief Interval in seconds for HTTP polling
+ */
 constexpr int HTTP_POLLING_SECONDS = 1;
 
+/**
+ * @brief Types of stopping conditions for text generation
+ */
 enum stop_type {
-    STOP_TYPE_NONE,
-    STOP_TYPE_EOS,
-    STOP_TYPE_WORD,
-    STOP_TYPE_LIMIT,
+    STOP_TYPE_NONE,    /**< No stopping condition met */
+    STOP_TYPE_EOS,     /**< End of sequence token was generated */
+    STOP_TYPE_WORD,    /**< A specific word/token stopping condition was met */
+    STOP_TYPE_LIMIT,   /**< Token generation limit was reached */
 };
 
 // state diagram: https://github.com/ggml-org/llama.cpp/pull/9283
+/**
+ * @brief States of a server processing slot
+ *
+ * Represents the different states a slot can be in during text generation.
+ * See state diagram: https://github.com/ggml-org/llama.cpp/pull/9283
+ */
 enum slot_state {
-    SLOT_STATE_IDLE,
-    SLOT_STATE_STARTED, // TODO: this state is only used for setting up the initial prompt processing; maybe merge it with launch_slot_with_task in the future
-    SLOT_STATE_PROCESSING_PROMPT,
-    SLOT_STATE_DONE_PROMPT,
-    SLOT_STATE_GENERATING,
+    SLOT_STATE_IDLE,              /**< Slot is idle and available for new tasks */
+    SLOT_STATE_STARTED,           /**< Task has been started (initial setup) */ // TODO: this state is only used for setting up the initial prompt processing; maybe merge it with launch_slot_with_task in the future
+    SLOT_STATE_PROCESSING_PROMPT, /**< Slot is processing the input prompt */
+    SLOT_STATE_DONE_PROMPT,       /**< Prompt processing completed, ready for generation */
+    SLOT_STATE_GENERATING,        /**< Currently generating text tokens */
 };
 
+/**
+ * @brief Current state of the server
+ */
 enum server_state {
-    SERVER_STATE_LOADING_MODEL,  // Server is starting up, model not fully loaded yet
-    SERVER_STATE_READY,          // Server is ready and model is loaded
+    SERVER_STATE_LOADING_MODEL,  /**< Server is starting up, model not fully loaded yet */
+    SERVER_STATE_READY,          /**< Server is ready and model is loaded */
 };
 
+/**
+ * @brief Types of tasks that can be executed by the server
+ *
+ * These task types define the different operations that the server can perform,
+ * such as text completion, embedding generation, etc.
+ */
 enum server_task_type {
-    SERVER_TASK_TYPE_COMPLETION,
-    SERVER_TASK_TYPE_EMBEDDING,
-    SERVER_TASK_TYPE_RERANK,
-    SERVER_TASK_TYPE_INFILL,
-    SERVER_TASK_TYPE_CANCEL,
-    SERVER_TASK_TYPE_NEXT_RESPONSE,
-    SERVER_TASK_TYPE_METRICS,
-    SERVER_TASK_TYPE_SLOT_SAVE,
-    SERVER_TASK_TYPE_SLOT_RESTORE,
-    SERVER_TASK_TYPE_SLOT_ERASE,
-    SERVER_TASK_TYPE_SET_LORA,
+    SERVER_TASK_TYPE_COMPLETION,   /**< Generate text completion */
+    SERVER_TASK_TYPE_EMBEDDING,    /**< Generate embeddings for input text */
+    SERVER_TASK_TYPE_RERANK,       /**< Re-rank candidate responses */
+    SERVER_TASK_TYPE_INFILL,       /**< Fill in text based on context */
+    SERVER_TASK_TYPE_CANCEL,       /**< Cancel an ongoing task */
+    SERVER_TASK_TYPE_NEXT_RESPONSE,/**< Get the next response for an ongoing task */
+    SERVER_TASK_TYPE_METRICS,      /**< Get server metrics */
+    SERVER_TASK_TYPE_SLOT_SAVE,    /**< Save a slot's state to disk */
+    SERVER_TASK_TYPE_SLOT_RESTORE, /**< Restore a slot's state from disk */
+    SERVER_TASK_TYPE_SLOT_ERASE,   /**< Erase a slot's state */
+    SERVER_TASK_TYPE_SET_LORA,     /**< Configure LoRA adapters */
 };
 
+/**
+ * @brief OpenAI API compatibility modes
+ *
+ * These modes determine the format of responses to match OpenAI API standards
+ */
 enum oaicompat_type {
-    OAICOMPAT_TYPE_NONE,
-    OAICOMPAT_TYPE_CHAT,
-    OAICOMPAT_TYPE_COMPLETION,
-    OAICOMPAT_TYPE_EMBEDDING,
+    OAICOMPAT_TYPE_NONE,       /**< No OpenAI compatibility */
+    OAICOMPAT_TYPE_CHAT,       /**< ChatGPT-like completion */
+    OAICOMPAT_TYPE_COMPLETION, /**< Text completion */
+    OAICOMPAT_TYPE_EMBEDDING,  /**< Embedding generation */
 };
 
 // https://community.openai.com/t/openai-chat-list-of-error-codes-and-types/357791/11
+/**
+ * @brief Error types for response messages
+ *
+ * These error types are used to categorize different kinds of failures
+ * in the server's API responses
+ */
 enum error_type {
-    ERROR_TYPE_INVALID_REQUEST,
-    ERROR_TYPE_AUTHENTICATION,
-    ERROR_TYPE_SERVER,
-    ERROR_TYPE_NOT_FOUND,
-    ERROR_TYPE_PERMISSION,
-    ERROR_TYPE_UNAVAILABLE, // custom error
-    ERROR_TYPE_NOT_SUPPORTED, // custom error
+    ERROR_TYPE_INVALID_REQUEST, /**< Invalid request parameters */
+    ERROR_TYPE_AUTHENTICATION,  /**< Authentication failure */
+    ERROR_TYPE_SERVER,          /**< Internal server error */
+    ERROR_TYPE_NOT_FOUND,       /**< Resource not found */
+    ERROR_TYPE_PERMISSION,      /**< Permission denied */
+    ERROR_TYPE_UNAVAILABLE,     /**< Service unavailable (custom error) */
+    ERROR_TYPE_NOT_SUPPORTED,   /**< Feature not supported (custom error) */
 };
 
+//######################################################################################################
+//# DATA STRUCTURES
+//######################################################################################################
+
+/**
+ * @brief Parameters for a server slot
+ *
+ * Contains configuration options for text generation, such as
+ * streaming behavior, context management, and timing controls.
+ */
 struct slot_params {
-    bool stream        = true;
-    bool cache_prompt  = true; // remember the prompt to avoid reprocessing all prompt
-    bool return_tokens = false;
+    bool stream        = true;  /**< Whether to stream responses token by token */
+    bool cache_prompt  = true;  /**< Remember the prompt to avoid reprocessing all prompt */
+    bool return_tokens = false; /**< Whether to include token IDs in the response */
 
-    int32_t n_keep    =  0; // number of tokens to keep from initial prompt
-    int32_t n_discard =  0; // number of tokens after n_keep that may be discarded when shifting context, 0 defaults to half
-    int32_t n_predict = -1; // new tokens to predict
-    int32_t n_indent  =  0; // mininum line indentation for the generated text in number of whitespace characters
+    int32_t n_keep    =  0;  /**< Number of tokens to keep from initial prompt */
+    int32_t n_discard =  0;  /**< Number of tokens after n_keep that may be discarded when shifting context, 0 defaults to half */
+    int32_t n_predict = -1;  /**< Number of new tokens to predict (-1 for unlimited) */
+    int32_t n_indent  =  0;  /**< Minimum line indentation for the generated text in number of whitespace characters */
 
-    int64_t t_max_prompt_ms  = -1; // TODO: implement
-    int64_t t_max_predict_ms = -1; // if positive, limit the generation phase to this time limit
+    int64_t t_max_prompt_ms  = -1; /**< Maximum time for prompt processing in milliseconds (TODO: implement) */
+    int64_t t_max_predict_ms = -1; /**< Maximum time for generation phase in milliseconds (if positive) */
 
     std::vector<common_adapter_lora_info> lora;
 

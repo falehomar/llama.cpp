@@ -41,11 +41,13 @@ public class FfmBackendManagerTest {
         logger.info("Testing initializeNuma");
 
         // Test with different strategies
-        backendManager.initializeNuma(1); // distribute
-        assertEquals(1, backendManager.getNumaStrategy(), "NUMA strategy should be set to 1");
+        backendManager.initializeNuma(LlamaCPP.GGML_NUMA_STRATEGY_DISTRIBUTE()); // distribute
+        assertEquals(LlamaCPP.GGML_NUMA_STRATEGY_DISTRIBUTE(), backendManager.getNumaStrategy(),
+                "NUMA strategy should be set to DISTRIBUTE");
 
-        backendManager.initializeNuma(2); // isolate
-        assertEquals(2, backendManager.getNumaStrategy(), "NUMA strategy should be set to 2");
+        backendManager.initializeNuma(LlamaCPP.GGML_NUMA_STRATEGY_ISOLATE()); // isolate
+        assertEquals(LlamaCPP.GGML_NUMA_STRATEGY_ISOLATE(), backendManager.getNumaStrategy(),
+                "NUMA strategy should be set to ISOLATE");
     }
 
     @Test

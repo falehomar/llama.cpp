@@ -13,7 +13,7 @@ public class FfmBackendManager implements BackendManager {
     private static final Logger logger = LoggerFactory.getLogger(FfmBackendManager.class);
 
     private boolean initialized = false;
-    private int numaStrategy = 0;
+    private int numaStrategy = LlamaCPP.GGML_NUMA_STRATEGY_DISABLED();
     private LogCallback logCallback = null;
     private Object userData = null;
 
@@ -40,6 +40,19 @@ public class FfmBackendManager implements BackendManager {
         logger.debug("Backend cleaned up");
     }
 
+    /**
+     * Initializes NUMA with the specified strategy.
+     * Available strategies:
+     * <ul>
+     *   <li>{@link LlamaCPP#GGML_NUMA_STRATEGY_DISABLED()} - NUMA is disabled</li>
+     *   <li>{@link LlamaCPP#GGML_NUMA_STRATEGY_DISTRIBUTE()} - Distribute memory across NUMA nodes</li>
+     *   <li>{@link LlamaCPP#GGML_NUMA_STRATEGY_ISOLATE()} - Isolate memory to the local NUMA node</li>
+     *   <li>{@link LlamaCPP#GGML_NUMA_STRATEGY_NUMACTL()} - Use numactl for NUMA memory management</li>
+     *   <li>{@link LlamaCPP#GGML_NUMA_STRATEGY_MIRROR()} - Mirror memory across NUMA nodes</li>
+     * </ul>
+     *
+     * @param strategy the NUMA strategy to use
+     */
     @Override
     public void initializeNuma(int strategy) {
         logger.info("Initializing NUMA with strategy: {}", strategy);
