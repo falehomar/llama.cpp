@@ -606,7 +606,7 @@ struct result_timings {
 
 /**
  * @brief Base class for all server task results
- * 
+ *
  * This abstract class serves as the foundation for all types of task results
  * that can be returned by the server. It provides a common interface for
  * serializing results to JSON and checking their status.
@@ -614,7 +614,7 @@ struct result_timings {
 struct server_task_result {
     int id           = -1;  /**< Task identifier this result belongs to */
     int id_slot      = -1;  /**< Slot identifier that processed the task */
-    
+
     /**
      * @brief Check if the result represents an error
      * @return true if this is an error result, false otherwise
@@ -623,7 +623,7 @@ struct server_task_result {
         // only used by server_task_result_error
         return false;
     }
-    
+
     /**
      * @brief Check if the result indicates a completed or stopped task
      * @return true if the task is stopped/completed, false otherwise
@@ -632,7 +632,7 @@ struct server_task_result {
         // only used by server_task_result_cmpl_*
         return false;
     }
-    
+
     /**
      * @brief Get the index for batch requests
      * @return The index within a batch, or -1 if not applicable
@@ -640,13 +640,13 @@ struct server_task_result {
     virtual int get_index() {
         return -1;
     }
-    
+
     /**
      * @brief Serialize the result to JSON format
      * @return JSON object containing the result data
      */
     virtual json to_json() = 0;
-    
+
     /**
      * @brief Virtual destructor for proper cleanup of derived classes
      */
@@ -667,7 +667,7 @@ inline std::string stop_type_to_str(stop_type type) {
 
 /**
  * @brief Represents a generated token and its associated information
- * 
+ *
  * This structure contains all information related to a generated token,
  * including its probability, text representation, and top alternative tokens.
  */
@@ -675,10 +675,10 @@ struct completion_token_output {
     llama_token tok;         /**< Token ID */
     float prob;              /**< Token probability */
     std::string text_to_send; /**< Text representation of the token */
-    
+
     /**
      * @brief Information about a token and its probability
-     * 
+     *
      * Used for storing top alternative tokens and their probabilities
      */
     struct prob_info {
@@ -749,8 +749,8 @@ struct completion_token_output {
 
 /**
  * @brief Final result for a text completion task
- * 
- * Contains the complete generated text and associated metadata for a 
+ *
+ * Contains the complete generated text and associated metadata for a
  * completed text generation task. This is returned when a generation
  * task has finished.
  */
@@ -1346,7 +1346,7 @@ struct server_task_result_apply_lora : server_task_result {
 
 /**
  * @brief Processing slot for handling server tasks
- * 
+ *
  * A slot represents a server resource that can process tasks. Each slot has
  * its own context and can handle one task at a time, allowing the server to
  * process multiple tasks concurrently.
@@ -1629,22 +1629,31 @@ struct server_slot {
     }
 };
 
+/**
+ * @brief Collects server performance metrics
+ *
+ * This structure keeps track of various performance metrics for the server,
+ * including token processing times, generation throughput, and resource utilization.
+ * These metrics can be queried to monitor server performance.
+ */
 struct server_metrics {
-    int64_t t_start = 0;
+    int64_t t_start = 0;  /**< Server start time in microseconds */
 
-    uint64_t n_prompt_tokens_processed_total = 0;
-    uint64_t t_prompt_processing_total       = 0;
-    uint64_t n_tokens_predicted_total        = 0;
-    uint64_t t_tokens_generation_total       = 0;
+    // Cumulative metrics (since server start)
+    uint64_t n_prompt_tokens_processed_total = 0; /**< Total number of prompt tokens processed */
+    uint64_t t_prompt_processing_total       = 0; /**< Total time spent processing prompts (ms) */
+    uint64_t n_tokens_predicted_total        = 0; /**< Total number of tokens generated */
+    uint64_t t_tokens_generation_total       = 0; /**< Total time spent generating tokens (ms) */
 
-    uint64_t n_prompt_tokens_processed = 0;
-    uint64_t t_prompt_processing       = 0;
+    // Current metrics (since last reset)
+    uint64_t n_prompt_tokens_processed = 0; /**< Number of prompt tokens processed since last reset */
+    uint64_t t_prompt_processing       = 0; /**< Time spent processing prompts since last reset (ms) */
 
-    uint64_t n_tokens_predicted  = 0;
-    uint64_t t_tokens_generation = 0;
+    uint64_t n_tokens_predicted  = 0;  /**< Number of tokens generated since last reset */
+    uint64_t t_tokens_generation = 0;  /**< Time spent generating tokens since last reset (ms) */
 
-    uint64_t n_decode_total     = 0;
-    uint64_t n_busy_slots_total = 0;
+    uint64_t n_decode_total     = 0;  /**< Total number of decode operations */
+    uint64_t n_busy_slots_total = 0;  /**< Total number of busy slots over time (for utilization) */
 
     void init() {
         t_start = ggml_time_us();
@@ -3780,6 +3789,14 @@ static void log_server_request(const httplib::Request & req, const httplib::Resp
 std::function<void(int)> shutdown_handler;
 std::atomic_flag is_terminating = ATOMIC_FLAG_INIT;
 
+/**
+ * @brief Handle interrupt signals
+ *
+ * This function handles interrupt signals (like CTRL+C) and calls the shutdown handler.
+ * It implements a double-interrupt behavior for emergency termination.
+ *
+ * @param signal The signal number received
+ */
 inline void signal_handler(int signal) {
     if (is_terminating.test_and_set()) {
         // in case it hangs, we can force terminate the server by hitting Ctrl+C twice
@@ -3791,6 +3808,19 @@ inline void signal_handler(int signal) {
     shutdown_handler(signal);
 }
 
+//######################################################################################################
+//# MAIN FUNCTION
+//######################################################################################################
+
+/**
+ * @brief Main entry point for the server
+ *
+ * Initializes the server, loads the model, and sets up HTTP endpoints.
+ *
+ * @param argc Number of command line arguments
+ * @param argv Array of command line arguments
+ * @return 0 on successful shutdown, non-zero on error
+ */
 int main(int argc, char ** argv) {
     // own arguments required by this example
     common_params params;
