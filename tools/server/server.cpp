@@ -2203,7 +2203,8 @@ struct server_context {
 
         // find the slot that has been least recently used
         if (ret == nullptr) {
-            int64_t t_last = ggml_time_us();
+            int64_t t_last = -1;
+
             for (server_slot & slot : slots) {
                 // skip the slot if it is not available
                 if (slot.is_processing()) {
@@ -2211,7 +2212,7 @@ struct server_context {
                 }
 
                 // select the current slot if the criteria match
-                if (slot.t_last_used < t_last) {
+                if (!ret || slot.t_last_used <= t_last) {
                     t_last = slot.t_last_used;
                     ret = &slot;
                 }
